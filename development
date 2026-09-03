@@ -1,0 +1,824 @@
+1. Project Overview
+
+CampusFindU is a campus-wide Lost and Found Management System where students, faculty, staff, and visitors can report lost or found items, pin their locations on an interactive map, search for items, submit ownership claims, and receive notifications.
+
+Administrators manage reports, users, claims, and the overall system.
+
+2. Final Tech Stack
+Part	Technology	Purpose
+Frontend	React + Vite	User interface
+Styling	CSS / Tailwind CSS	UI design
+Backend	Node.js + Express.js	REST API and business logic
+Database	Supabase PostgreSQL	Store system data
+Authentication	Supabase Auth	Login/register
+File Storage	Supabase Storage	Item photos/evidence
+Maps	React Leaflet + OpenStreetMap	Location pinning
+HTTP Client	Axios	Frontend → backend requests
+Routing	React Router	Page navigation
+Development	Nodemon	Backend auto-restart
+Version Control	Git + GitHub	Collaboration/version control
+Architecture
+                    CAMPUSFINDU
+                         │
+          ┌──────────────┴──────────────┐
+          │                             │
+     React + Vite                  Node.js + Express
+      FRONTEND                        BACKEND
+          │                             │
+          │         REST API            │
+          └──────────────┬──────────────┘
+                         │
+                     SUPABASE
+                         │
+       ┌─────────────────┼─────────────────┐
+       │                 │                 │
+   PostgreSQL        Supabase Auth    Supabase Storage
+    Database           Login             Images
+3. User Types
+
+CampusFindU will support:
+
+Student
+Register/login
+Report lost items
+Report found items
+Search items
+Pin locations
+Submit claims
+Receive notifications
+Faculty
+
+Same basic functionality as students.
+
+Staff
+
+Same basic functionality, with potentially additional permissions depending on their role.
+
+Visitor
+
+Can use the system without requiring a student or employee ID.
+
+Administrator
+
+Has management privileges.
+
+userType
+├── student
+├── faculty
+├── staff
+├── visitor
+└── admin
+4. Database Structure
+
+Your current main tables are:
+
+Users
+lost_items
+found_items
+claims
+notifications
+Users
+
+Your current structure:
+
+Column	Type
+id	UUID
+email	TEXT
+fullName	TEXT
+userType	TEXT
+studId	TEXT
+employeeId	TEXT
+contactNum	TEXT
+createdAt	TIMESTAMPTZ
+Important
+
+studId and employeeId should be nullable.
+
+Example:
+
+Student
+studId     = 2023-12345
+employeeId = NULL
+
+
+Faculty
+studId     = NULL
+employeeId = FAC-001
+
+
+Staff
+studId     = NULL
+employeeId = STF-001
+
+
+Visitor
+studId     = NULL
+employeeId = NULL
+5. lost_items
+
+Stores items reported as lost.
+
+lost_items
+├── id
+├── user_id
+├── title
+├── description
+├── category
+├── latitude
+├── longitude
+├── location_name
+├── image_url
+├── status
+└── created_at
+Function
+
+When a user reports:
+
+"I lost my black wallet near the library."
+
+The system stores:
+
+title: Black Wallet
+category: Personal Item
+latitude: 18.xxxxx
+longitude: 120.xxxxx
+location_name: University Library
+status: lost
+6. found_items
+
+Stores items reported as found.
+
+found_items
+├── id
+├── user_id
+├── title
+├── description
+├── category
+├── latitude
+├── longitude
+├── location_name
+├── image_url
+├── status
+└── created_at
+
+Example:
+
+title: Black Wallet
+category: Personal Item
+location_name: University Library
+status: found
+7. claims
+
+Handles ownership claims.
+
+claims
+├── id
+├── found_item_id
+├── claimant_id
+├── proof_description
+├── proof_image_url
+├── status
+├── reviewed_by
+├── created_at
+└── reviewed_at
+Claim process
+User sees found item
+        ↓
+   Claim Item
+        ↓
+Provides proof
+        ↓
+     Pending
+        ↓
+      Admin
+        ↓
+ ┌──────┴──────┐
+ ↓             ↓
+Approved     Rejected
+8. notifications
+
+Stores system notifications.
+
+notifications
+├── id
+├── user_id
+├── title
+├── message
+├── type
+├── is_read
+└── created_at
+
+Examples:
+
+Your claim has been approved.
+
+A potential match was found for your lost item.
+
+Your report has been reviewed.
+
+9. Database Relationships
+                         Users
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+            1:N           1:N           1:N
+             │             │             │
+             ▼             ▼             ▼
+        lost_items    found_items   notifications
+                           │
+                          1:N
+                           │
+                           ▼
+                         claims
+                       /         \
+                      /           \
+             claimant_id       reviewed_by
+                    │               │
+                    └───────┬───────┘
+                            ▼
+                           Users
+Foreign Keys
+lost_items.user_id
+    → Users.id
+
+
+found_items.user_id
+    → Users.id
+
+
+claims.found_item_id
+    → found_items.id
+
+
+claims.claimant_id
+    → Users.id
+
+
+claims.reviewed_by
+    → Users.id
+
+
+notifications.user_id
+    → Users.id
+10. Main System Functionalities
+
+Now the important part: what can CampusFindU actually do?
+
+A. User Registration & Login 🔐
+
+Users can:
+
+Create an account
+Log in
+Log out
+Reset password
+Manage profile
+Select user type
+
+Authentication is handled by Supabase Auth.
+
+B. Report Lost Item
+
+A user can create a lost-item report.
+
+Information:
+Item name
+Description
+Category
+Photo
+Date/time
+Location
+Location:
+
+The user opens the map:
+
+       CAMPUS MAP
+
+
+          📍
+       Lost Item
+          
+   [Select Location]
+
+The system saves:
+
+latitude
+longitude
+location_name
+C. Report Found Item
+
+Same functionality but for items someone found.
+
+Report Found Item
+        ↓
+Item details
+        ↓
+Upload photo
+        ↓
+Pin location 📍
+        ↓
+Submit
+D. Interactive Lost & Found Map 📍
+
+This should be one of your defining features.
+
+Users can view reports geographically.
+
+Example:
+
+              CAMPUS MAP
+
+
+       📍 Found Wallet
+
+
+                     📍 Lost Phone
+
+
+
+
+   📍 Found ID
+
+
+
+
+             📍 Lost Keys
+
+Clicking a pin displays:
+
+Black Wallet
+Found
+University Library
+
+
+[View Details]
+E. Search & Filtering 🔎
+
+Users can search for:
+
+Item name
+Category
+Location
+Date
+Status
+
+Example:
+
+Search: wallet
+
+
+Category: Personal Items
+Status: Found
+Location: Library
+F. Item Details
+
+Each report gets a details page.
+
+Example:
+
+BLACK WALLET
+
+
+[PHOTO]
+
+
+Category: Personal Item
+Status: Found
+
+
+Found at:
+University Library
+
+
+Reported by:
+Student
+
+
+Date:
+August 15, 2026
+
+
+[View on Map]
+
+
+[Claim This Item]
+G. Claim System 🔐
+
+Users can claim a found item.
+
+They must provide evidence.
+
+Example:
+
+Why do you believe this is yours?
+
+
+[________________________________]
+
+
+Upload proof:
+[ Choose File ]
+
+
+        [Submit Claim]
+
+The claim goes to:
+
+Pending
+H. Admin Verification
+
+Admin sees:
+
+CLAIM REQUEST
+
+
+Item:
+Black Wallet
+
+
+Claimant:
+Juan Dela Cruz
+
+
+Proof:
+"I have a small scratch on the
+bottom-right corner."
+
+
+[Proof Image]
+
+
+[ APPROVE ] [ REJECT ]
+I. Smart Match Suggestions 🤖
+
+This can be your innovative feature.
+
+The system compares lost and found reports based on:
+
+Item name
+Category
+Description
+Location
+Date
+
+Example:
+
+YOUR LOST ITEM
+
+
+Black Wallet
+Library
+August 14
+
+
+          ↓
+
+
+POSSIBLE MATCH
+
+
+Black Wallet
+Library
+August 15
+
+
+Match Score: 87%
+
+You don't need complicated AI initially. A scoring algorithm is enough for an MVP.
+
+J. Notifications 🔔
+
+Users receive notifications when:
+
+Someone reports a potential match
+Their claim is approved
+Their claim is rejected
+Their report is reviewed
+Their item is marked resolved
+
+Example:
+
+🔔 Notifications
+
+
+Potential Match Found
+Someone reported a black wallet
+near your reported location.
+
+
+2 minutes ago
+K. User Dashboard
+
+After login:
+
+┌─────────────────────────────────────┐
+│          CampusFindU                │
+├─────────────────────────────────────┤
+│                                     │
+│  My Lost Items       3              │
+│  My Found Items      2              │
+│  Pending Claims      1              │
+│  Notifications       4              │
+│                                     │
+│  [Report Lost Item]                 │
+│  [Report Found Item]                │
+│                                     │
+└─────────────────────────────────────┘
+L. Admin Dashboard
+
+Admin gets a separate dashboard.
+
+┌─────────────────────────────────────┐
+│       CampusFindU ADMIN             │
+├─────────────────────────────────────┤
+│                                     │
+│ Users             450               │
+│ Lost Items        125               │
+│ Found Items        98               │
+│ Pending Claims     17               │
+│ Resolved Items     76               │
+│                                     │
+└─────────────────────────────────────┘
+
+Admin can:
+
+Manage users
+Review reports
+Review claims
+Remove inappropriate reports
+Approve/reject claims
+View statistics
+Monitor resolved items
+11. Development Phases — Combined
+
+Here's the actual order I'd recommend your group follows.
+
+Phase 1 — Planning
+Define requirements
+Define users
+Define functionalities
+Define unique features
+
+↓
+
+Phase 2 — UI/UX Design
+
+Create Figma designs for:
+
+Login
+Register
+Dashboard
+Lost Item
+Found Item
+Map
+Item Details
+Claims
+Notifications
+Admin Dashboard
+
+↓
+
+Phase 3 — Database Design
+
+Create:
+
+Users
+lost_items
+found_items
+claims
+notifications
+
+Set up:
+
+PK
+FK
+relationships
+constraints
+RLS
+
+↓
+
+Phase 4 — Project Setup
+Frontend
+React + Vite
+React Router
+Axios
+React Leaflet
+Backend
+Node.js
+Express.js
+CORS
+dotenv
+Supabase JS
+Nodemon
+
+↓
+
+Phase 5 — Authentication
+
+Implement:
+
+Register
+Login
+Logout
+Session
+Password reset
+User roles
+
+↓
+
+Phase 6 — Backend APIs
+
+Build:
+
+/auth
+/lost-items
+/found-items
+/claims
+/notifications
+/users
+
+↓
+
+Phase 7 — Frontend
+
+Build:
+
+Authentication
+Dashboard
+Lost Item
+Found Item
+Search
+Item Details
+Profile
+
+↓
+
+Phase 8 — Map
+
+Implement:
+
+Map display
+Pin location
+Get coordinates
+Save coordinates
+Display report pins
+Location filtering
+
+↓
+
+Phase 9 — Claims
+
+Implement:
+
+Submit claim
+Upload evidence
+Admin review
+Approve/reject
+Update item status
+
+↓
+
+Phase 10 — Smart Matching
+
+Implement:
+
+Item similarity
+Location proximity
+Date proximity
+Match score
+Potential match notification
+
+↓
+
+Phase 11 — Notifications
+
+Implement:
+
+Claim notifications
+Match notifications
+Admin notifications
+Read/unread status
+
+↓
+
+Phase 12 — Admin
+
+Implement:
+
+User management
+Report management
+Claim management
+Statistics
+
+↓
+
+Phase 13 — Testing
+
+Test:
+
+Authentication
+CRUD
+Map
+Image upload
+Claims
+Notifications
+Roles
+Security
+Database relationships
+
+↓
+
+Phase 14 — Deployment
+React → Frontend hosting
+Node/Express → Backend hosting
+Supabase → Database/Auth/Storage
+
+↓
+
+Phase 15 — Documentation & Presentation
+
+Prepare:
+
+ERD
+Use Case Diagram
+Activity Diagram
+Sequence Diagram
+System Architecture
+Database Documentation
+API Documentation
+User Manual
+Final presentation
+12. MVP vs Advanced Features
+
+To keep your project manageable, I recommend separating your features.
+
+🟢 MVP — Must Have
+User registration/login
+User roles
+Report lost item
+Report found item
+Upload photos
+Interactive map/pin locations
+Search/filter
+Item details
+Claim system
+Admin verification
+🔵 Advanced / Defining Features
+Smart Match Suggestions
+Location-based matching
+Real-time notifications
+Admin analytics/dashboard
+
+This is important because you don't want to spend all your development time building AI before the basic Lost & Found system works.
+
+Final CampusFindU Flow
+
+The entire system can be summarized as:
+
+                 CAMPUSFINDU
+                      │
+                ┌─────▼─────┐
+                │   LOGIN   │
+                └─────┬─────┘
+                      │
+             ┌────────▼────────┐
+             │    DASHBOARD    │
+             └────────┬────────┘
+                      │
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+ Report Lost     Report Found     Search
+       │              │              │
+       └───────┬──────┘              │
+               ▼                     │
+          📍 Pin Location             │
+               │                     │
+               ▼                     │
+          Upload Photo                │
+               │                     │
+               ▼                     │
+           Save Report ◄─────────────┘
+               │
+               ▼
+        SMART MATCHING
+               │
+               ▼
+       Potential Match
+               │
+               ▼
+          Submit Claim
+               │
+               ▼
+        Admin Verification
+          ┌────┴────┐
+          ▼         ▼
+      APPROVED    REJECTED
+          │
+          ▼
+      Notification
+          │
+          ▼
+       RESOLVED
+
+In short: your core system is a Lost & Found platform, while the things that make CampusFindU stand out are the interactive map, smart matching, and verified claim workflow. The technology stack supports all of these without making the architecture unnecessarily complicated.

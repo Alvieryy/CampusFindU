@@ -1,0 +1,862 @@
+CampusFindU Development Roadmap
+PHASE 1  → Planning & Requirements
+    ↓
+PHASE 2  → UI/UX Design
+    ↓
+PHASE 3  → Database Design
+    ↓
+PHASE 4  → Project Setup
+    ↓
+PHASE 5  → Authentication & Users
+    ↓
+PHASE 6  → Backend/API
+    ↓
+PHASE 7  → Lost & Found Core Features
+    ↓
+PHASE 8  → Map & Location
+    ↓
+PHASE 9  → Claims & Verification
+    ↓
+PHASE 10 → Smart Matching
+    ↓
+PHASE 11 → Notifications
+    ↓
+PHASE 12 → Admin Dashboard
+    ↓
+PHASE 13 → Testing & Security
+    ↓
+PHASE 14 → Deployment
+    ↓
+PHASE 15 → Documentation & Presentation
+PHASE 1 — 📋 Planning & Requirements
+Goal
+
+Decide exactly what CampusFindU will and will not do.
+
+Step 1 — Define the problem
+
+CampusFindU solves the problem of scattered and inefficient campus lost-and-found reporting.
+
+Step 2 — Define users
+Student
+Faculty
+Staff
+Visitor
+Admin
+Step 3 — Define core functionalities
+
+☐ Register/Login
+☐ Report Lost Item
+☐ Report Found Item
+☐ Upload Item Photo
+☐ Search Items
+☐ Filter Items
+☐ Pin Location
+☐ View Item Details
+☐ Submit Claim
+☐ Admin Verification
+☐ Notifications
+
+Step 4 — Define unique features
+
+Your four defining features can be:
+
+📍 Interactive Campus Lost & Found Map
+🤖 Smart Match Suggestions
+🔐 Verified Claim System
+🔔 Real-Time Notifications
+Deliverable
+
+Requirements document
+
+PHASE 2 — 🎨 UI/UX Design
+Goal
+
+Design the entire interface before coding it.
+
+Use Figma.
+
+Step 1 — Design authentication
+Login
+Register
+Forgot Password
+Step 2 — Design user interface
+Dashboard
+Lost Items
+Found Items
+Report Lost
+Report Found
+Item Details
+Map
+Claims
+Notifications
+Profile
+Step 3 — Design admin interface
+Admin Dashboard
+Users
+Lost Items
+Found Items
+Claims
+Reports/Analytics
+Step 4 — Create navigation
+
+Example:
+
+Dashboard
+├── Lost Items
+├── Found Items
+├── Map
+├── My Reports
+├── My Claims
+├── Notifications
+└── Profile
+Deliverable
+
+Complete Figma prototype
+
+PHASE 3 — 🗄️ Database Design
+Goal
+
+Create the database structure before building the API.
+
+You're currently around this phase.
+
+Step 1 — Create Supabase project
+
+Already done.
+
+Step 2 — Create tables
+Users
+lost_items
+found_items
+claims
+notifications
+Step 3 — Define relationships
+Users
+ │
+ ├──< lost_items
+ │
+ ├──< found_items
+ │       │
+ │       └──< claims
+ │
+ ├──< claims
+ │
+ └──< notifications
+Step 4 — Define foreign keys
+lost_items.user_id
+→ Users.id
+
+
+found_items.user_id
+→ Users.id
+
+
+claims.found_item_id
+→ found_items.id
+
+
+claims.claimant_id
+→ Users.id
+
+
+claims.reviewed_by
+→ Users.id
+
+
+notifications.user_id
+→ Users.id
+Step 5 — Define item statuses
+
+For lost items:
+
+lost
+matched
+resolved
+
+For found items:
+
+found
+claimed
+returned
+
+For claims:
+
+pending
+approved
+rejected
+Step 6 — Configure Supabase
+
+☐ Row Level Security
+☐ Policies
+☐ Authentication
+☐ Storage bucket for images
+
+Deliverable
+
+ERD + working Supabase database
+
+PHASE 4 — ⚙️ Project Setup
+Goal
+
+Prepare the actual development environment.
+
+Backend
+
+Create:
+
+backend/
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── app.js
+│   └── server.js
+│
+├── .env
+├── package.json
+└── nodemon.json
+
+Install:
+
+express
+cors
+dotenv
+@supabase/supabase-js
+nodemon
+Frontend
+
+Create:
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── layouts/
+│   ├── services/
+│   ├── hooks/
+│   └── routes/
+└── package.json
+
+Install:
+
+react-router-dom
+axios
+react-leaflet
+leaflet
+Step 1 — Test backend
+GET /
+
+Expected:
+
+CampusFindU API is running
+Step 2 — Test frontend
+
+Make sure React/Vite runs.
+
+Step 3 — Test frontend → backend
+React
+ ↓
+Axios
+ ↓
+Express
+ ↓
+Response
+Deliverable
+
+Working frontend + backend skeleton
+
+PHASE 5 — 🔐 Authentication & User Management
+Goal
+
+Get users properly registered and logged in.
+
+Step 1 — Supabase Auth
+
+Implement:
+
+Register
+Login
+Logout
+Session
+Password Reset
+Step 2 — User profile
+
+After registration:
+
+Supabase Auth
+      ↓
+public.Users
+
+Store:
+
+fullName
+userType
+studId
+employeeId
+contactNum
+Step 3 — Role system
+student
+faculty
+staff
+visitor
+admin
+Step 4 — Protected routes
+
+For example:
+
+/api/admin/*
+
+should only be accessible by admins.
+
+Step 5 — Frontend protection
+
+A normal user shouldn't be able to simply type:
+
+/admin
+
+and access the admin dashboard.
+
+Deliverable
+
+Working authentication + role-based access
+
+PHASE 6 — 🔌 Backend/API Development
+Goal
+
+Build the API that connects React to Supabase.
+
+Step 1 — Lost Item API
+GET    /api/lost-items
+GET    /api/lost-items/:id
+POST   /api/lost-items
+PUT    /api/lost-items/:id
+DELETE /api/lost-items/:id
+Step 2 — Found Item API
+GET    /api/found-items
+GET    /api/found-items/:id
+POST   /api/found-items
+PUT    /api/found-items/:id
+DELETE /api/found-items/:id
+Step 3 — Claims API
+GET    /api/claims
+GET    /api/claims/:id
+POST   /api/claims
+PUT    /api/claims/:id
+Step 4 — Notifications API
+GET /api/notifications
+PUT /api/notifications/:id/read
+Step 5 — User API
+GET /api/users/me
+PUT /api/users/me
+Deliverable
+
+Complete REST API
+
+PHASE 7 — 🔎 Lost & Found Core Features
+Goal
+
+Make the basic Lost & Found system work.
+
+Start with lost items.
+
+Step 1
+
+Create:
+
+Report Lost Item
+
+Form:
+
+Item Name
+Description
+Category
+Date
+Location
+Photo
+Step 2
+
+Connect form:
+
+React
+ ↓
+Axios
+ ↓
+POST /api/lost-items
+ ↓
+Express
+ ↓
+Supabase
+Step 3
+
+Build Lost Items page.
+
+Lost Items
+
+
+[Search...]
+
+
+Black Wallet
+Lost Phone
+Blue Umbrella
+Student ID
+Step 4
+
+Repeat for found items.
+
+Step 5 — Item details
+
+Create:
+
+/items/lost/:id
+/items/found/:id
+Step 6 — Search
+
+Search by:
+
+item name
+description
+Step 7 — Filters
+
+Filter by:
+
+category
+date
+location
+status
+Deliverable
+
+Fully functional Lost & Found CRUD
+
+PHASE 8 — 📍 Map & Location System
+Goal
+
+Implement your major defining feature.
+
+Use:
+
+React Leaflet + OpenStreetMap
+
+Step 1 — Display map
+
+Create:
+
+<Map />
+Step 2 — Allow pinning
+
+User clicks:
+
+📍 Map
+
+and selects the location.
+
+Step 3 — Get coordinates
+latitude
+longitude
+Step 4 — Save them
+lost_items
+├── latitude
+├── longitude
+└── location_name
+
+and:
+
+found_items
+├── latitude
+├── longitude
+└── location_name
+Step 5 — Display pins
+
+Load reports:
+
+📍 Lost Phone
+📍 Found Wallet
+📍 Lost ID
+Step 6 — Pin details
+
+Clicking a marker:
+
+Black Wallet
+Found
+Library
+
+
+[View Details]
+Step 7 — Location search/filter
+
+Allow users to find reports around a specific campus area.
+
+Deliverable
+
+Interactive CampusFindU map
+
+PHASE 9 — 🔐 Claims & Verification
+Goal
+
+Prevent people from simply claiming items without proof.
+
+Step 1
+
+User clicks:
+
+Claim This Item
+
+Step 2
+
+Show:
+
+Proof Description
+Proof Image
+Step 3
+
+Submit:
+
+status = pending
+Step 4
+
+Admin receives claim.
+
+Pending Claims
+       ↓
+Admin reviews
+Step 5
+
+Admin chooses:
+
+APPROVE
+REJECT
+Step 6 — If approved
+
+Update:
+
+claim.status = approved
+found_item.status = claimed
+Step 7 — If rejected
+claim.status = rejected
+Deliverable
+
+Working ownership verification system
+
+PHASE 10 — 🤖 Smart Match Suggestions
+Goal
+
+Automatically identify potentially matching lost and found items.
+
+Don't start with complicated AI.
+
+Start with a matching algorithm.
+
+Step 1 — Compare category
+Wallet ↔ Wallet
+Step 2 — Compare keywords
+"black leather wallet"
+        ↕
+"black wallet"
+Step 3 — Compare location
+
+Example:
+
+Lost: Library
+Found: Library
+
+Higher score.
+
+Step 4 — Compare dates
+
+Closer dates = higher score.
+
+Step 5 — Calculate score
+
+Example:
+
+Category       30%
+Description    30%
+Location       25%
+Date           15%
+------------------
+Total          100%
+Step 6
+
+If:
+
+score >= 70%
+
+show:
+
+Potential Match Found
+
+Deliverable
+
+Smart matching system
+
+PHASE 11 — 🔔 Notifications
+Goal
+
+Keep users informed.
+
+Create notifications for:
+
+Claim
+Your claim has been approved.
+Rejection
+Your claim has been rejected.
+Matching
+A potential match was found for your lost item.
+Admin
+New claim requires review.
+Step 1
+
+Create notification record.
+
+Step 2
+
+Display notification badge.
+
+🔔 3
+Step 3
+
+Create notification page.
+
+Step 4
+
+Mark as read.
+
+is_read = true
+Deliverable
+
+Working notification system
+
+PHASE 12 — 👨‍💼 Admin Dashboard
+Goal
+
+Give administrators complete control.
+
+Dashboard statistics
+Users             450
+Lost Items        125
+Found Items        98
+Pending Claims     17
+Resolved Items     76
+User Management
+
+☐ View users
+☐ Search users
+☐ Change roles
+☐ Disable users
+
+Lost Item Management
+
+☐ View reports
+☐ Remove inappropriate reports
+☐ Mark resolved
+
+Found Item Management
+
+☐ View reports
+☐ Manage items
+☐ Mark returned
+
+Claims
+
+☐ View pending claims
+☐ Review evidence
+☐ Approve
+☐ Reject
+
+Analytics
+
+Show:
+
+Lost vs Found
+Most reported categories
+Most common locations
+Resolution rate
+Deliverable
+
+Complete admin panel
+
+PHASE 13 — 🧪 Testing & Security
+Goal
+
+Make sure the system actually works and isn't easily abused.
+
+Functional testing
+
+Test:
+
+☐ Register
+☐ Login
+☐ Logout
+☐ Report lost
+☐ Report found
+☐ Upload photo
+☐ Pin location
+☐ Search
+☐ Filter
+☐ Claim
+☐ Approve claim
+☐ Reject claim
+☐ Notifications
+API testing
+
+Use Postman/Thunder Client if your team wants to test the Express API independently.
+
+POST
+GET
+PUT
+DELETE
+Security
+
+Test that:
+
+User A cannot edit User B's report
+User cannot approve their own claim
+Visitor cannot access admin functions
+Normal user cannot access admin API
+Database
+
+Check:
+
+Foreign keys
+RLS policies
+Required fields
+Invalid data
+Unauthorized queries
+Deliverable
+
+Tested and secured system
+
+PHASE 14 — 🚀 Deployment
+Goal
+
+Make CampusFindU accessible online.
+
+                INTERNET
+                    │
+          ┌─────────┴─────────┐
+          ↓                   ↓
+      FRONTEND              BACKEND
+       React                 Node
+          │                   │
+          └────────┬──────────┘
+                   ↓
+                Supabase
+Step 1
+
+Deploy frontend.
+
+Step 2
+
+Deploy Express backend.
+
+Step 3
+
+Configure environment variables.
+
+SUPABASE_URL
+SUPABASE_ANON_KEY
+
+Backend secrets should stay on the backend.
+
+Step 4
+
+Configure CORS.
+
+Step 5
+
+Test production environment.
+
+Deliverable
+
+Live CampusFindU
+
+PHASE 15 — 📚 Documentation & Presentation
+Technical documentation
+
+Prepare:
+
+System Architecture
+ERD
+Use Case Diagram
+Activity Diagram
+Sequence Diagram
+Database Schema
+API Documentation
+User documentation
+
+Explain:
+
+How to register
+How to report lost items
+How to report found items
+How to use the map
+How to claim an item
+How admins verify claims
+Final demonstration
+
+Your presentation can follow this flow:
+
+1. Register
+      ↓
+2. Login
+      ↓
+3. Report Lost Item
+      ↓
+4. Pin Location 📍
+      ↓
+5. Upload Photo
+      ↓
+6. Submit
+      ↓
+7. Another User Reports Found Item
+      ↓
+8. Smart Match 🤖
+      ↓
+9. Claim Item
+      ↓
+10. Admin Reviews
+      ↓
+11. Approve
+      ↓
+12. Notification 🔔
+      ↓
+13. Item Returned
+🎯 Recommended Team Roadmap
+
+If you're working as a group, you don't have to wait for one person to finish everything.
+
+Once Phase 3 is finalized, you can parallelize:
+
+                    DATABASE
+                       │
+             ┌─────────┼─────────┐
+             ↓         ↓         ↓
+         Backend    Frontend   UI/UX
+             │         │
+             └────┬────┘
+                  ↓
+                MAP
+                  ↓
+               CLAIMS
+                  ↓
+           SMART MATCHING
+                  ↓
+            NOTIFICATIONS
+                  ↓
+               ADMIN
+                  ↓
+              TESTING
+                  ↓
+             DEPLOYMENT
+The most important rule
+
+Don't start Phase 10 (Smart Matching) while Phases 7–9 are broken.
+
+Build it incrementally:
+
+Database → Authentication → CRUD → Map → Claims → Matching → Notifications → Admin → Testing → Deployment
+
+That gives your group a clear path from your current
