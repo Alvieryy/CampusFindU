@@ -1,133 +1,211 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [formData, setFormData] = useState({
+    fullName: "",
     email: "",
     password: "",
-    fullName: "",
-    userType: "student", // Default role
+    userType: "student",
     studId: "",
-    employeeId: "",
     contactNum: "",
   });
-
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError(null);
+    setLoading(true);
+    setError("");
 
-    // supabase sign up user
-    const { data, error } = await supabase.auth.signUp({
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
-      options: {
-       
-        data: {
-          full_name: formData.fullName,
-          user_type: formData.userType, 
-          stud_id: formData.userType === "student" ? formData.studId : null,
-          employee_id: ["faculty", "staff", "admin"].includes(formData.userType)
-            ? formData.employeeId
-            : null,
-          contact_num: formData.contactNum,
-        },
-      },
     });
-    if (error) {
-      setError(error.message);
-    } else {
-      alert("Registration successful! You can now log in.");
-      navigate("/login");
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
     }
+
+    if (authData?.user) {
+      const { error: dbError } = await supabase.from("Users").insert([
+        {
+          id: authData.user.id,
+          fullName: formData.fullName,
+          userType: formData.userType,
+          studId: formData.userType === "student" ? formData.studId : null,
+          employeeId: formData.userType === "faculty" ? formData.studId : null,
+          contactNum: formData.contactNum,
+        },
+      ]);
+
+      if (dbError) setError(dbError.message);
+      else {
+        alert("Registration Successful! You can now log in.");
+        navigate("/login");
+      }
+    }
+    setLoading(false);
   };
+
   return (
-    <div style={{ padding: "20px", maxWidth: "400px", margin: "0 auto" }}>
-      <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="min-h-screen flex font-sans bg-gray-50">
+      {/* LEFT SIDE: FORM */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-12 bg-white relative overflow-y-auto">
+        <div className="w-full max-w-md my-auto">
+          <div className="mb-8">
+            <Link
+              to="/login"
+              className="text-gray-400 font-bold hover:text-blue-600 transition flex items-center gap-2 mb-6"
+            >
+              <span>&larr;</span> Back to Login
+            </Link>
 
-      <form
-        onSubmit={handleRegister}
-        style={{ display: "flex", flexDirection: "column", gap: "15px" }}
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            <div className="flex items-center gap-3 mb-2">
+              <img
+                src="/logo.png"
+                alt="CampusFindU Logo"
+                className="w-16 h-20 object-contain"
+              />
+              <h1 className="text-3xl font-black text-blue-900 tracking-tight">
+                Create an Account
+              </h1>
+            </div>
+
+            <p className="text-gray-500 font-medium">
+              Join the Campus Lost and Found system.
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleRegister} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Role
+              </label>
+              <select
+                value={formData.userType}
+                onChange={(e) =>
+                  setFormData({ ...formData, userType: e.target.value })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-white"
+              >
+                <option value="student">Student</option>
+                <option value="faculty">Faculty</option>
+                <option value="staff">Staff</option>
+                <option value="visitor">Visitor</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            {formData.userType !== "visitor" && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  {formData.userType === "student"
+                    ? "Student ID"
+                    : "Employee ID"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.studId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, studId: e.target.value })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Contact Number
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.contactNum}
+                onChange={(e) =>
+                  setFormData({ ...formData, contactNum: e.target.value })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-700 text-white font-bold text-lg p-4 rounded-lg hover:bg-blue-800 transition shadow-lg mt-4 disabled:opacity-50"
+            >
+              {loading ? "Creating Account..." : "Register"}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: YOUR SCHOOL IMAGE */}
+      <div className="hidden lg:block lg:w-1/2 bg-blue-900 relative">
+        <img
+          src="/school.jpg"
+          alt="School Campus"
+          className="w-full h-full object-cover opacity-90"
         />
-
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
-        />
-
-        <input
-          type="text"
-          placeholder="Full Name"
-          required
-          onChange={(e) =>
-            setFormData({ ...formData, fullName: e.target.value })
-          }
-        />
-
-        {/* Role Selection Dropdown */}
-        <select
-          value={formData.userType}
-          onChange={(e) =>
-            setFormData({ ...formData, userType: e.target.value })
-          }
-          style={{ padding: "8px" }}
-        >
-          <option value="student">Student</option>
-          <option value="faculty">Faculty</option>
-          <option value="staff">Staff</option>
-          <option value="visitor">Visitor</option>
-          <option value="admin">Admin</option>
-        </select>
-        {/* Conditionally show fields based on the selected role */}
-        {formData.userType === "student" && (
-          <input
-            type="text"
-            placeholder="Student ID"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, studId: e.target.value })
-            }
-          />
-        )}
-
-        {["faculty", "staff", "admin"].includes(formData.userType) && (
-          <input
-            type="text"
-            placeholder="Employee ID"
-            required
-            onChange={(e) =>
-              setFormData({ ...formData, employeeId: e.target.value })
-            }
-          />
-        )}
-
-        <input
-          type="text"
-          placeholder="Contact Number"
-          required
-          onChange={(e) =>
-            setFormData({ ...formData, contactNum: e.target.value })
-          }
-        />
-
-        <button type="submit" style={{ padding: "10px", cursor: "pointer" }}>
-          Sign Up
-        </button>
-      </form>
+        <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply"></div>
+      </div>
     </div>
   );
 }

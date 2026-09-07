@@ -1,32 +1,32 @@
 CampusFindU Development Roadmap
-PHASE 1  → Planning & Requirements
-    ↓
-PHASE 2  → UI/UX Design
-    ↓
-PHASE 3  → Database Design
-    ↓
-PHASE 4  → Project Setup
-    ↓
-PHASE 5  → Authentication & Users
-    ↓
-PHASE 6  → Backend/API
-    ↓
-PHASE 7  → Lost & Found Core Features
-    ↓
-PHASE 8  → Map & Location
-    ↓
-PHASE 9  → Claims & Verification
-    ↓
+PHASE 1 → Planning & Requirements
+↓
+PHASE 2 → UI/UX Design
+↓
+PHASE 3 → Database Design
+↓
+PHASE 4 → Project Setup
+↓
+PHASE 5 → Authentication & Users
+↓
+PHASE 6 → Backend/API
+↓
+PHASE 7 → Lost & Found Core Features
+↓
+PHASE 8 → Map & Location
+↓
+PHASE 9 → Claims & Verification
+↓
 PHASE 10 → Smart Matching
-    ↓
+↓
 PHASE 11 → Notifications
-    ↓
+↓
 PHASE 12 → Admin Dashboard
-    ↓
+↓
 PHASE 13 → Testing & Security
-    ↓
+↓
 PHASE 14 → Deployment
-    ↓
+↓
 PHASE 15 → Documentation & Presentation
 PHASE 1 — 📋 Planning & Requirements
 Goal
@@ -133,36 +133,31 @@ claims
 notifications
 Step 3 — Define relationships
 Users
- │
- ├──< lost_items
- │
- ├──< found_items
- │       │
- │       └──< claims
- │
- ├──< claims
- │
- └──< notifications
+│
+├──< lost_items
+│
+├──< found_items
+│ │
+│ └──< claims
+│
+├──< claims
+│
+└──< notifications
 Step 4 — Define foreign keys
 lost_items.user_id
 → Users.id
 
-
 found_items.user_id
 → Users.id
-
 
 claims.found_item_id
 → found_items.id
 
-
 claims.claimant_id
 → Users.id
 
-
 claims.reviewed_by
 → Users.id
-
 
 notifications.user_id
 → Users.id
@@ -207,13 +202,13 @@ Create:
 
 backend/
 ├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── routes/
-│   ├── services/
-│   ├── app.js
-│   └── server.js
+│ ├── config/
+│ ├── controllers/
+│ ├── middleware/
+│ ├── routes/
+│ ├── services/
+│ ├── app.js
+│ └── server.js
 │
 ├── .env
 ├── package.json
@@ -232,12 +227,12 @@ Create:
 
 frontend/
 ├── src/
-│   ├── components/
-│   ├── pages/
-│   ├── layouts/
-│   ├── services/
-│   ├── hooks/
-│   └── routes/
+│ ├── components/
+│ ├── pages/
+│ ├── layouts/
+│ ├── services/
+│ ├── hooks/
+│ └── routes/
 └── package.json
 
 Install:
@@ -258,11 +253,11 @@ Make sure React/Vite runs.
 
 Step 3 — Test frontend → backend
 React
- ↓
+↓
 Axios
- ↓
+↓
 Express
- ↓
+↓
 Response
 Deliverable
 
@@ -287,7 +282,7 @@ Step 2 — User profile
 After registration:
 
 Supabase Auth
-      ↓
+↓
 public.Users
 
 Store:
@@ -307,7 +302,7 @@ Step 4 — Protected routes
 
 For example:
 
-/api/admin/*
+/api/admin/\*
 
 should only be accessible by admins.
 
@@ -329,22 +324,22 @@ Goal
 Build the API that connects React to Supabase.
 
 Step 1 — Lost Item API
-GET    /api/lost-items
-GET    /api/lost-items/:id
-POST   /api/lost-items
-PUT    /api/lost-items/:id
+GET /api/lost-items
+GET /api/lost-items/:id
+POST /api/lost-items
+PUT /api/lost-items/:id
 DELETE /api/lost-items/:id
 Step 2 — Found Item API
-GET    /api/found-items
-GET    /api/found-items/:id
-POST   /api/found-items
-PUT    /api/found-items/:id
+GET /api/found-items
+GET /api/found-items/:id
+POST /api/found-items
+PUT /api/found-items/:id
 DELETE /api/found-items/:id
 Step 3 — Claims API
-GET    /api/claims
-GET    /api/claims/:id
-POST   /api/claims
-PUT    /api/claims/:id
+GET /api/claims
+GET /api/claims/:id
+POST /api/claims
+PUT /api/claims/:id
 Step 4 — Notifications API
 GET /api/notifications
 PUT /api/notifications/:id/read
@@ -381,13 +376,13 @@ Step 2
 Connect form:
 
 React
- ↓
+↓
 Axios
- ↓
+↓
 POST /api/lost-items
- ↓
+↓
 Express
- ↓
+↓
 Supabase
 Step 3
 
@@ -395,9 +390,7 @@ Build Lost Items page.
 
 Lost Items
 
-
 [Search...]
-
 
 Black Wallet
 Lost Phone
@@ -483,7 +476,6 @@ Black Wallet
 Found
 Library
 
-
 [View Details]
 Step 7 — Location search/filter
 
@@ -520,7 +512,7 @@ Step 4
 Admin receives claim.
 
 Pending Claims
-       ↓
+↓
 Admin reviews
 Step 5
 
@@ -553,7 +545,7 @@ Step 1 — Compare category
 Wallet ↔ Wallet
 Step 2 — Compare keywords
 "black leather wallet"
-        ↕
+↕
 "black wallet"
 Step 3 — Compare location
 
@@ -572,12 +564,14 @@ Step 5 — Calculate score
 
 Example:
 
-Category       30%
-Description    30%
-Location       25%
-Date           15%
-------------------
-Total          100%
+Category 30%
+Description 30%
+Location 25%
+Date 15%
+
+---
+
+Total 100%
 Step 6
 
 If:
@@ -635,11 +629,11 @@ Goal
 Give administrators complete control.
 
 Dashboard statistics
-Users             450
-Lost Items        125
-Found Items        98
-Pending Claims     17
-Resolved Items     76
+Users 450
+Lost Items 125
+Found Items 98
+Pending Claims 17
+Resolved Items 76
 User Management
 
 ☐ View users
@@ -744,6 +738,7 @@ Make CampusFindU accessible online.
           └────────┬──────────┘
                    ↓
                 Supabase
+
 Step 1
 
 Deploy frontend.
@@ -800,31 +795,31 @@ Final demonstration
 Your presentation can follow this flow:
 
 1. Register
-      ↓
+   ↓
 2. Login
-      ↓
+   ↓
 3. Report Lost Item
-      ↓
+   ↓
 4. Pin Location 📍
-      ↓
+   ↓
 5. Upload Photo
-      ↓
+   ↓
 6. Submit
-      ↓
+   ↓
 7. Another User Reports Found Item
-      ↓
+   ↓
 8. Smart Match 🤖
-      ↓
+   ↓
 9. Claim Item
-      ↓
+   ↓
 10. Admin Reviews
-      ↓
+    ↓
 11. Approve
-      ↓
+    ↓
 12. Notification 🔔
-      ↓
+    ↓
 13. Item Returned
-🎯 Recommended Team Roadmap
+    🎯 Recommended Team Roadmap
 
 If you're working as a group, you don't have to wait for one person to finish everything.
 
@@ -851,6 +846,7 @@ Once Phase 3 is finalized, you can parallelize:
               TESTING
                   ↓
              DEPLOYMENT
+
 The most important rule
 
 Don't start Phase 10 (Smart Matching) while Phases 7–9 are broken.

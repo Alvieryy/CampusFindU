@@ -5,4 +5,6 @@ const notificationsController = require('../controllers/notificationsController'
 router.get('/', notificationsController.getNotifications);
 router.put('/:id/read', notificationsController.markAsRead);
 
+router.post('/', notificationsController.createNotification);
+
 module.exports = router;

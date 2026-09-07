@@ -15,4 +15,17 @@ exports.markAsRead = async (req, res) => {
         
     if (error) return res.status(500).json({ error: error.message });
     res.status(200).json(data[0]);
+
+
+};
+
+exports.createNotification = async (req, res) => {
+    const { user_id, title, message, type } = req.body;
+    
+    const { data, error } = await supabase.from('notifications').insert([
+        { user_id, title, message, type, is_read: false }
+    ]).select();
+    
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json(data[0]);
 };
