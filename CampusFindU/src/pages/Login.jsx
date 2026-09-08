@@ -9,6 +9,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -74,16 +76,19 @@ export default function Login() {
 
             <div className="relative">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition placeholder-gray-400 font-medium bg-gray-50/50"
               />
-              <span className="absolute right-4 top-4 text-gray-400 cursor-pointer">
-                👁️
-              </span>
+              <img
+                src={showPassword ? "/eye.png" : "/hidden.png"}
+                alt="Toggle Password Visibility"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-4 w-6 h-6 cursor-pointer opacity-50 hover:opacity-100 transition"
+              />
             </div>
 
             <div className="flex justify-between items-center text-sm font-bold mt-1">

@@ -14,6 +14,7 @@ export default function Register() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -32,14 +33,16 @@ export default function Register() {
     }
 
     if (authData?.user) {
-      const { error: dbError } = await supabase.from("Users").insert([
+      const { error: dbError } = await supabase.from("Users").upsert([
         {
           id: authData.user.id,
           fullName: formData.fullName,
           userType: formData.userType,
           studId: formData.userType === "student" ? formData.studId : null,
-          employeeId: formData.userType === "faculty" ? formData.studId : null,
+          employeeId:
+            formData.userType === "faculty" ? formData.employeeId : null,
           contactNum: formData.contactNum,
+          email: formData.email, // <--- ADD THIS LINE HERE!
         },
       ]);
 
@@ -77,7 +80,7 @@ export default function Register() {
             </div>
 
             <p className="text-gray-500 font-medium">
-              Join the Campus Lost and Found system.
+              Join CampusFindU: Lost and Found Management System.
             </p>
           </div>
 
@@ -175,15 +178,23 @@ export default function Register() {
               <label className="block text-sm font-bold text-gray-700 mb-1">
                 Password
               </label>
-              <input
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
+                  className="w-full p-3 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                />
+                <img
+                  src={showPassword ? "/eye.png" : "/hidden.png"}
+                  alt="Toggle Password Visibility"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3.5 w-5 h-5 cursor-pointer opacity-50 hover:opacity-100 transition"
+                />
+              </div>
             </div>
 
             <button
