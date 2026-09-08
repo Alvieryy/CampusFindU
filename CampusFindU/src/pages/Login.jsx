@@ -40,7 +40,7 @@ export default function Login() {
               className="w-24 h-28 object-contain"
             />
             <h1 className="text-2xl font-black text-blue-900 tracking-tight leading-tight">
-              CAMPUS
+              CampusFindU:
               <br />
               LOST AND FOUND
               <br />
