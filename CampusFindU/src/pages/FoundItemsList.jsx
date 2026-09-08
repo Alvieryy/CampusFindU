@@ -12,7 +12,7 @@ export default function FoundItemsList() {
       try {
         // Fetching from the /found-items API!
         const response = await axios.get(
-          "http://localhost:5000/api/found-items",
+          "https://campusfindu-backend.onrender.com/api/found-items",
         );
         setItems(response.data);
       } catch (error) {

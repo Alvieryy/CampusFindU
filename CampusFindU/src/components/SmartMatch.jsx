@@ -12,7 +12,7 @@ export default function SmartMatch({ currentItem, type }) {
         // If viewing a FOUND item, check all LOST items.
         const endpoint =
           type === "lost" ? "/api/found-items" : "/api/lost-items";
-        const response = await axios.get(`http://localhost:5000${endpoint}`);
+        const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
         const oppositeItems = response.data;
 
         const scoredMatches = [];

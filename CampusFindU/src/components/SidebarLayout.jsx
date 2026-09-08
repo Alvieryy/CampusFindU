@@ -23,7 +23,7 @@ export default function SidebarLayout({ children }) {
   const fetchUnreadCount = async (uid) => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/notifications",
+        "https://campusfindu-backend.onrender.com/api/notifications",
       );
       const unread = response.data.filter(
         (n) => n.user_id === uid && n.is_read === false,

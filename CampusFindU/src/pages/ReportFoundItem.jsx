@@ -59,7 +59,7 @@ export default function ReportFoundItem() {
       }
 
       // NOW SEND EVERYTHING (INCLUDING THE IMAGE URL) TO OUR EXPRESS BACKEND
-      await axios.post("http://localhost:5000/api/found-items", {
+      await axios.post("https://campusfindu-backend.onrender.com/api/found-items", {
         ...formData,
         user_id: userId,
         image_url: finalImageUrl,

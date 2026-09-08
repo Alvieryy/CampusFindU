@@ -50,7 +50,7 @@ function LocationMarker({ position, setPosition, onLocationSelect }) {
       const isInside = isPointInPolygon([lat, lng], mmsuPolygon);
 
       if (!isInside) {
-        alert("⚠️ Please drop the pin inside the MMSU Campus bounds!");
+        alert("⚠️ Please drop the pin inside the MMSU Campus area only");
         return;
       }
 

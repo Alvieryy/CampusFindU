@@ -8,7 +8,7 @@ export default function AdminClaims() {
   // Step 4: Fetch all claims so Admin can review them
   const fetchClaims = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/claims");
+      const response = await axios.get("https://campusfindu-backend.onrender.com/api/claims");
       setClaims(response.data);
     } catch (error) {
       console.error(error);
@@ -25,14 +25,14 @@ export default function AdminClaims() {
   const handleDecision = async (claim, decision) => {
     try {
       // 1. Update the claim status (to 'approved' or 'rejected')
-      await axios.put(`http://localhost:5000/api/claims/${claim.id}`, {
+      await axios.put(`https://campusfindu-backend.onrender.com/api/claims/${claim.id}`, {
         status: decision,
       });
 
       // 2. If approved, lock the Found Item so nobody else can claim it
       if (decision === "approved") {
         await axios.put(
-          `http://localhost:5000/api/found-items/${claim.found_item_id}`,
+          `https://campusfindu-backend.onrender.com/api/found-items/${claim.found_item_id}`,
           { status: "claimed" },
         );
       }
@@ -45,7 +45,7 @@ export default function AdminClaims() {
           ? "Good news! Your proof was accepted. Please proceed to the office to pick up your item."
           : "Unfortunately, your proof was not accepted for this item.";
 
-      await axios.post("http://localhost:5000/api/notifications", {
+      await axios.post("https://campusfindu-backend.onrender.com/api/notifications", {
         user_id: claim.claimant_id, // Send it directly to the person who claimed it
         title: notifTitle,
         message: notifMessage,

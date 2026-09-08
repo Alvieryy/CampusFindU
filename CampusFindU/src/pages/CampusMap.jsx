@@ -52,10 +52,10 @@ export default function CampusMap() {
   useEffect(() => {
     // Fetch ALL items from both APIs at the same time
     axios
-      .get("http://localhost:5000/api/lost-items")
+      .get("https://campusfindu-backend.onrender.com/api/lost-items")
       .then((res) => setLostItems(res.data));
     axios
-      .get("http://localhost:5000/api/found-items")
+      .get("https://campusfindu-backend.onrender.com/api/found-items")
       .then((res) => setFoundItems(res.data));
   }, []);
 

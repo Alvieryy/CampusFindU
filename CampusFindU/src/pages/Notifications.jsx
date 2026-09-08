@@ -18,7 +18,7 @@ export default function Notifications() {
   const fetchNotifications = async (uid) => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/notifications",
+        "https://campusfindu-backend.onrender.com/api/notifications",
       );
       // Only show notifications that belong to the logged-in user!
       const userNotifs = response.data.filter((n) => n.user_id === uid);
@@ -30,7 +30,7 @@ export default function Notifications() {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/${id}/read`);
+      await axios.put(`https://campusfindu-backend.onrender.com/api/notifications/${id}/read`);
       // Update the screen instantly
       setNotifications(
         notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)),

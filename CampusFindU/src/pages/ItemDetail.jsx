@@ -14,7 +14,7 @@ export default function ItemDetail({ type }) {
       try {
         const endpoint =
           type === "lost" ? `/api/lost-items/${id}` : `/api/found-items/${id}`;
-        const response = await axios.get(`http://localhost:5000${endpoint}`);
+        const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
         setItem(response.data);
       } catch (error) {
         console.error(error);

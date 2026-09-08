@@ -9,7 +9,7 @@ export default function Navbar() {
   const fetchUnreadCount = async (uid) => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/notifications",
+        "https://campusfindu-backend.onrender.com/api/notifications",
       );
       // Count how many notifications belong to this user AND are unread
       const unread = response.data.filter(

@@ -45,7 +45,7 @@ export default function SubmitClaim() {
         finalImageUrl = data.publicUrl;
       }
 
-      await axios.post("http://localhost:5000/api/claims", {
+      await axios.post("https://campusfindu-backend.onrender.com/api/claims", {
         found_item_id: id,
         claimant_id: userId,
         proof_description: formData.proof_description,

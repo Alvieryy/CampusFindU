@@ -21,9 +21,9 @@ export default function MyItems() {
       try {
         // Fetch all 3 lists at the same time
         const [lostRes, foundRes, claimsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/lost-items"),
-          axios.get("http://localhost:5000/api/found-items"),
-          axios.get("http://localhost:5000/api/claims"),
+          axios.get("https://campusfindu-backend.onrender.com/api/lost-items"),
+          axios.get("https://campusfindu-backend.onrender.com/api/found-items"),
+          axios.get("https://campusfindu-backend.onrender.com/api/claims"),
         ]);
 
         // Filter the lists so you ONLY see your own stuff

@@ -16,7 +16,7 @@ export default function LostItemsList() {
     const fetchItems = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/lost-items",
+          "https://campusfindu-backend.onrender.com/api/lost-items",
         );
         setItems(response.data);
       } catch (error) {

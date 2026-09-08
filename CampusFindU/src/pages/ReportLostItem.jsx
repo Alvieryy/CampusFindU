@@ -51,11 +51,14 @@ export default function ReportLostItem() {
         finalImageUrl = data.publicUrl;
       }
 
-      await axios.post("http://localhost:5000/api/lost-items", {
-        ...formData,
-        user_id: userId,
-        image_url: finalImageUrl,
-      });
+      await axios.post(
+        "https://campusfindu-backend.onrender.com/api/lost-items",
+        {
+          ...formData,
+          user_id: userId,
+          image_url: finalImageUrl,
+        },
+      );
 
       alert("Lost item reported successfully!");
       navigate("/dashboard");

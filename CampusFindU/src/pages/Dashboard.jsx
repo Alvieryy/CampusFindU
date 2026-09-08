@@ -52,9 +52,9 @@ export default function Dashboard() {
 
       try {
         const [lostRes, foundRes, claimsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/lost-items"),
-          axios.get("http://localhost:5000/api/found-items"),
-          axios.get("http://localhost:5000/api/claims"),
+          axios.get("https://campusfindu-backend.onrender.com/api/lost-items"),
+          axios.get("https://campusfindu-backend.onrender.com/api/found-items"),
+          axios.get("https://campusfindu-backend.onrender.com/api/claims"),
         ]);
 
         if (isAdmin) {
