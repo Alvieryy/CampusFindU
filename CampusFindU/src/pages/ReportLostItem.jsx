@@ -3,6 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
+import Swal from "sweetalert2";
 
 export default function ReportLostItem() {
   const navigate = useNavigate();
@@ -60,11 +61,23 @@ export default function ReportLostItem() {
         },
       );
 
-      alert("Lost item reported successfully!");
+      Swal.fire({
+        title: "Success!",
+        text: "Lost item reported successfully!",
+        icon: "success",
+        confirmButtonText: "Awesome",
+        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+      });
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Error reporting item or uploading image. Check console.");
+      Swal.fire({
+        title: "Error!",
+        text: "Error reporting lost item.",
+        icon: "error",
+        confirmButtonText: "Awesome",
+        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import Swal from "sweetalert2";
 
 export default function SubmitClaim() {
   const { id } = useParams();
@@ -53,6 +54,13 @@ export default function SubmitClaim() {
       });
 
       alert("Claim submitted! An admin will review your proof shortly.");
+      Swal.fire({
+        title: "Success!",
+        text: "Claim submitted.",
+        icon: "success",
+        confirmButtonText: "Awesome",
+        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+      });
       navigate("/dashboard");
     } catch (error) {
       console.error(error);

@@ -6,6 +6,8 @@ import axios from "axios";
 export default function SidebarLayout({ children }) {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // <--- ADD THIS
   const [profile, setProfile] = useState({
     fullName: "Loading...",
     userType: "...",
@@ -78,8 +80,16 @@ export default function SidebarLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans">
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-[#0a192f] text-white flex flex-col shadow-xl z-20">
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 w-64 bg-[#0a192f] text-white flex flex-col shadow-xl z-30 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
         <div className="p-6 font-bold text-xl tracking-wider border-b border-gray-800">
           CampusFindU
         </div>
@@ -90,6 +100,7 @@ export default function SidebarLayout({ children }) {
               <Link
                 key={item.name}
                 to={item.path}
+                onClick={() => setIsMobileMenuOpen(false)} // <--- ADD THIS
                 className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive ? "bg-blue-600 text-white font-bold" : "text-gray-300 hover:bg-gray-800 hover:text-white font-medium"}`}
               >
                 <span className="text-lg">{item.icon}</span>
@@ -117,15 +128,26 @@ export default function SidebarLayout({ children }) {
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* TOPBAR */}
-        <header className="bg-[#0a192f] text-white p-4 px-8 flex justify-between items-center shadow-md z-10">
-          <h2 className="font-medium text-lg tracking-wide">
-            Campus Lost and Found System
-          </h2>
+        {/* TOPBAR */}
+        <header className="bg-[#0a192f] text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-md z-10">
+          <div className="flex items-center">
+            {/* Hamburger Button for Mobile */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden text-white text-2xl mr-4"
+            >
+              ☰
+            </button>
+            <h2 className="font-medium text-base md:text-lg tracking-wide hidden sm:block">
+              Campus Lost and Found System
+            </h2>
+          </div>
+
           <div className="flex items-center gap-3">
             <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm tracking-widest">
               {getInitials(profile.fullName)}
             </div>
-            <div className="text-sm">
+            <div className="text-sm hidden sm:block">
               <p className="font-bold">{profile.fullName}</p>
               <p className="text-gray-300 text-xs capitalize">
                 {profile.userType}

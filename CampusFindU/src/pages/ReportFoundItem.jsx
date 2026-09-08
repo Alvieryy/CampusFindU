@@ -3,6 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
+import Swal from "sweetalert2";
 
 export default function ReportFoundItem() {
   const navigate = useNavigate();
@@ -59,13 +60,22 @@ export default function ReportFoundItem() {
       }
 
       // NOW SEND EVERYTHING (INCLUDING THE IMAGE URL) TO OUR EXPRESS BACKEND
-      await axios.post("https://campusfindu-backend.onrender.com/api/found-items", {
-        ...formData,
-        user_id: userId,
-        image_url: finalImageUrl,
-      });
+      await axios.post(
+        "https://campusfindu-backend.onrender.com/api/found-items",
+        {
+          ...formData,
+          user_id: userId,
+          image_url: finalImageUrl,
+        },
+      );
 
-      alert("Found item reported successfully!");
+      Swal.fire({
+        title: "Success!",
+        text: "Item reported successfully!",
+        icon: "success",
+        confirmButtonText: "Awesome",
+        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+      });
       navigate("/dashboard");
     } catch (error) {
       console.error(error);

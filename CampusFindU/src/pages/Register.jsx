@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -48,7 +49,13 @@ export default function Register() {
 
       if (dbError) setError(dbError.message);
       else {
-        alert("Registration Successful! You can now log in.");
+        Swal.fire({
+          title: "Success!",
+          text: "Registration successful! You can now log in.",
+          icon: "success",
+          confirmButtonText: "Awesome",
+          confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+        });
         navigate("/login");
       }
     }
