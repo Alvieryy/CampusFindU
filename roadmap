@@ -722,6 +722,72 @@ Unauthorized queries
 Deliverable
 
 Tested and secured system
+PHASE 14 — ⭐ Gamification & Point System
+Goal
+
+Encourage positive actions and "good Samaritan" behavior by rewarding users with a points-based system.
+
+Step 1 — Database Update
+
+In Supabase, update your existing tables:
+
+Add to Users table:
+
+total_points (integer, default: 0)
+
+Create new points_history table:
+
+id (PK)
+
+user_id (FK → Users.id)
+
+action (string, e.g., "Reported found item", "Item returned to owner")
+
+points_earned (integer)
+
+created_at (timestamp)
+
+Step 2 — Define Point Values
+
+Establish the reward logic in your backend:
+
+Report a legitimate found item = +10 points
+
+Item successfully claimed and returned = +50 points (Awarded to the finder)
+
+Step 3 — Backend API Updates
+
+Modify existing routes:
+
+PUT /api/claims/:id → When an admin approves a claim, trigger a function to add 50 points to the found_item.user_id (the finder) and log it in points_history.
+
+POST /api/found-items → Add 10 points to the reporting user.
+
+Create new route:
+
+GET /api/users/leaderboard → Fetch the top 10 users ranked by total_points in descending order.
+
+Step 4 — Frontend UI
+
+Create:
+
+Profile Badge: Display the user's total_points on their dashboard and profile page.
+
+Leaderboard Page: A public page showing the top point earners on campus to spark friendly competition.
+
+Point Notifications: Add to your Phase 11 notification system (e.g., "You earned 50 points! Your found item was returned.").
+
+Step 5 — Anti-Abuse Rules (Security)
+
+To prevent users from gaming the system:
+
+Admins can view point histories.
+
+If an admin deletes a fake "Found Item" report, deduct the 10 points.
+
+Deliverable
+
+A fully functional point system, transaction history, and campus leaderboard.
 
 PHASE 14 — 🚀 Deployment
 Goal

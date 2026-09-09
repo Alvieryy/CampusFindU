@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Step 4: Fetch all claims so Admin can review them
   const fetchClaims = async () => {
     try {
-      const response = await axios.get("https://campusfindu-backend.onrender.com/api/claims");
-      setClaims(response.data);
+      const response = await axios.get(
+        "https://campusfindu-backend.onrender.com/api/claims",
+      );
+      // Sort so pending claims show at the top!
+      const sorted = response.data.sort((a, b) =>
+        a.status === "pending" ? -1 : 1,
+      );
+      setClaims(sorted);
     } catch (error) {
       console.error(error);
     } finally {
@@ -21,121 +27,117 @@ export default function AdminClaims() {
     fetchClaims();
   }, []);
 
-  // Step 5: Admin chooses Approve or Reject
   const handleDecision = async (claim, decision) => {
     try {
-      // 1. Update the claim status (to 'approved' or 'rejected')
-      await axios.put(`https://campusfindu-backend.onrender.com/api/claims/${claim.id}`, {
-        status: decision,
-      });
+      // 1. Update the claim status to approved or rejected
+      await axios.put(
+        `https://campusfindu-backend.onrender.com/api/claims/${claim.id}`,
+        {
+          status: decision,
+        },
+      );
 
-      // 2. If approved, lock the Found Item so nobody else can claim it
+      // 2. If approved, we need to mark the actual Found Item as "claimed"
       if (decision === "approved") {
         await axios.put(
           `https://campusfindu-backend.onrender.com/api/found-items/${claim.found_item_id}`,
-          { status: "claimed" },
+          {
+            status: "claimed",
+          },
         );
       }
 
-      // 3. 🚨 SEND THE NOTIFICATION TO THE USER! 🚨
-      const notifTitle =
-        decision === "approved" ? "Claim Approved! 🎉" : "Claim Rejected ❌";
-      const notifMessage =
-        decision === "approved"
-          ? "Good news! Your proof was accepted. Please proceed to the office to pick up your item."
-          : "Unfortunately, your proof was not accepted for this item.";
+      // 3. Send a notification to the user
+      await axios.post(
+        "https://campusfindu-backend.onrender.com/api/notifications",
+        {
+          user_id: claim.user_id,
+          message: `Your claim for item #${claim.found_item_id} has been ${decision}.`,
+          type: decision === "approved" ? "success" : "error",
+        },
+      );
 
-      await axios.post("https://campusfindu-backend.onrender.com/api/notifications", {
-        user_id: claim.claimant_id, // Send it directly to the person who claimed it
-        title: notifTitle,
-        message: notifMessage,
-        type: "claim_update",
-      });
+      Swal.fire(
+        decision === "approved" ? "Approved!" : "Rejected!",
+        `The claim has been ${decision} and the user has been notified.`,
+        decision === "approved" ? "success" : "info",
+      );
 
-      alert(`Claim ${decision} successfully, and the user was notified!`);
       fetchClaims(); // Refresh the list
     } catch (error) {
-      console.error(error);
-      alert("Error updating claim. Check console.");
+      Swal.fire("Error", "Something went wrong processing the claim.", "error");
     }
   };
 
   if (loading)
-    return (
-      <div className="p-5 text-gray-500 text-center">Loading claims...</div>
-    );
+    return <div className="p-8 font-bold text-gray-500">Loading Claims...</div>;
 
   return (
-    <div className="p-5 max-w-4xl mx-auto mt-10 font-sans">
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">
-        Admin Dashboard: Claims
+    <div className="max-w-6xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        Review Pending Claims
       </h2>
 
-      <div className="flex flex-col gap-5">
-        {claims.length === 0 ? (
-          <p className="text-gray-500">No claims exist yet.</p>
-        ) : (
-          claims.map((claim) => (
+      {claims.length === 0 ? (
+        <p className="text-gray-500">No claims have been submitted yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {claims.map((claim) => (
             <div
               key={claim.id}
-              className="border border-gray-200 rounded-xl p-6 bg-white shadow-sm flex flex-col md:flex-row gap-6 justify-between items-start md:items-center"
+              className="border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition"
             >
-              <div className="flex-1">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="font-bold text-lg text-blue-900">
+                    Claim for Item #{claim.found_item_id}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Submitted by User: {claim.user_id}
+                  </p>
+                </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
-                    claim.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                      : claim.status === "approved"
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : "bg-red-100 text-red-800 border border-red-200"
+                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                    claim.status === "approved"
+                      ? "bg-green-100 text-green-700"
+                      : claim.status === "rejected"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-orange-100 text-orange-700"
                   }`}
                 >
                   {claim.status}
                 </span>
-
-                <p className="mt-4 text-gray-700">
-                  <strong>Found Item ID:</strong>{" "}
-                  <span className="text-xs text-gray-500">
-                    {claim.found_item_id}
-                  </span>
-                </p>
-                <p className="mt-2 text-gray-800">
-                  <strong>Proof Provided:</strong> "{claim.proof_description}"
-                </p>
-
-                {claim.proof_image_url && (
-                  <a
-                    href={claim.proof_image_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 hover:text-blue-800 text-sm mt-3 inline-block underline font-medium"
-                  >
-                    View Proof Photo
-                  </a>
-                )}
               </div>
 
-              {/* Show Action Buttons ONLY if the claim is still pending */}
+              <div className="bg-gray-50 p-4 rounded-md mb-4 border border-gray-100">
+                <p className="text-sm font-bold text-gray-700 mb-1">
+                  Evidence Provided:
+                </p>
+                <p className="text-sm text-gray-600 italic whitespace-pre-wrap">
+                  "{claim.proof_description}"
+                </p>
+              </div>
+
               {claim.status === "pending" && (
-                <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
+                <div className="flex gap-3 mt-4">
                   <button
                     onClick={() => handleDecision(claim, "approved")}
-                    className="flex-1 md:flex-none bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 transition shadow-sm"
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded transition"
                   >
-                    Approve
+                    Approve Claim
                   </button>
                   <button
                     onClick={() => handleDecision(claim, "rejected")}
-                    className="flex-1 md:flex-none bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700 transition shadow-sm"
+                    className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-bold py-2 rounded transition"
                   >
-                    Reject
+                    Reject Claim
                   </button>
                 </div>
               )}
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

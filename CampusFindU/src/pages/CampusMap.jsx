@@ -93,7 +93,6 @@ export default function CampusMap() {
           {/* Drop RED pins for Lost Items */}
           {lostItems.map(
             (item) =>
-              // Make sure the item has GPS coordinates before dropping a pin!
               item.latitude &&
               item.longitude && (
                 <Marker

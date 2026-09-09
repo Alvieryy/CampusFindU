@@ -1,128 +1,167 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { supabase } from "../supabaseClient";
+import Swal from "sweetalert2";
 
 export default function LostItemsList() {
   const [items, setItems] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // New State for our Filters!
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
-
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        const response = await axios.get(
-          "https://campusfindu-backend.onrender.com/api/lost-items",
-        );
-        setItems(response.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    try {
+      // 1. Check if user is admin
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        const { data: userData } = await supabase
+          .from("Users")
+          .select("userType")
+          .eq("id", session.user.id)
+          .single();
+        if (userData?.userType === "admin") setIsAdmin(true);
       }
-    };
-    fetchItems();
+
+      // 2. Fetch items
+      const response = await axios.get(
+        "https://campusfindu-backend.onrender.com/api/lost-items",
+      );
+      // Sort newest first
+      setItems(
+        response.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at),
+        ),
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
-  // Step 6 & 7: Search AND Filter Logic
-  const filteredItems = items.filter((item) => {
-    const searchLower = searchTerm.toLowerCase();
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will permanently delete this report from the database!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      confirmButtonText: "Yes, delete it!",
+    });
 
-    // Check if it matches the text search (including location now!)
-    const matchesSearch =
-      (item.title && item.title.toLowerCase().includes(searchLower)) ||
-      (item.description &&
-        item.description.toLowerCase().includes(searchLower)) ||
-      (item.location_name &&
-        item.location_name.toLowerCase().includes(searchLower));
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(
+          `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
+        );
+        Swal.fire("Deleted!", "The report has been removed.", "success");
+        fetchData(); // refresh list
+      } catch (err) {
+        Swal.fire("Error", "Failed to delete report. Check backend.", "error");
+      }
+    }
+  };
 
-    // Check if it matches the dropdown filters
-    const matchesCategory =
-      categoryFilter === "All" || item.category === categoryFilter;
-    const matchesStatus =
-      statusFilter === "All" || item.status === statusFilter;
+  const handleResolve = async (id) => {
+    try {
+      await axios.put(
+        `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
+        { status: "resolved" },
+      );
+      Swal.fire("Resolved!", "Item marked as resolved.", "success");
+      fetchData(); // refresh list
+    } catch (err) {
+      Swal.fire("Error", "Failed to update status.", "error");
+    }
+  };
 
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-
-  if (loading) return <div style={{ padding: "20px" }}>Loading items...</div>;
+  if (loading)
+    return (
+      <div className="p-8 font-bold text-gray-500">Loading Lost Items...</div>
+    );
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>Lost Items 🔎</h2>
-
-      <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-        <input
-          type="text"
-          placeholder="Search name or location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1, padding: "8px" }}
-        />
-
-        {/* Category Dropdown */}
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          style={{ padding: "8px" }}
-        >
-          <option value="All">All Categories</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Wallets">Wallets & IDs</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Other">Other</option>
-        </select>
-
-        {/* Status Dropdown */}
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ padding: "8px" }}
-        >
-          <option value="All">All Statuses</option>
-          <option value="lost">Lost</option>
-          <option value="recovered">Recovered</option>
-        </select>
+    <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-red-600">Lost Items Board</h2>
+        {isAdmin && (
+          <span className="bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full border border-purple-200">
+            Admin Mode Active
+          </span>
+        )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        {filteredItems.length === 0 ? (
-          <p>No lost items match your filters.</p>
-        ) : (
-          filteredItems.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "15px",
-                borderRadius: "5px",
-              }}
-            >
-              <h3 style={{ margin: "0 0 10px 0", color: "#ff4444" }}>
-                {item.title}
-              </h3>
-              <p style={{ margin: "0 0 5px 0" }}>
-                <strong>Category:</strong> {item.category} |{" "}
-                <strong>Status:</strong> {item.status}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col bg-white"
+          >
+            {item.image_url ? (
+              <img
+                src={item.image_url}
+                alt={item.title}
+                className="w-full h-48 object-cover"
+              />
+            ) : (
+              <div className="w-full h-48 bg-gray-50 flex items-center justify-center text-gray-400 font-medium">
+                No Image Provided
+              </div>
+            )}
+
+            <div className="p-5 flex-1 flex flex-col">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                  {item.title}
+                </h3>
+                <span
+                  className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${item.status === "resolved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                >
+                  {item.status || "lost"}
+                </span>
+              </div>
+              <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                {item.description}
               </p>
-              <p style={{ margin: "0 0 5px 0" }}>
-                <strong>Location:</strong> {item.location_name}
-              </p>
-              <p style={{ margin: "0 0 10px 0" }}>
-                <em>"{item.description}"</em>
-              </p>
-              <Link
-                to={`/items/lost/${item.id}`}
-                style={{ textDecoration: "none", color: "blue" }}
-              >
-                View Full Details →
-              </Link>
+
+              <div className="mt-auto text-xs text-gray-500 flex flex-col gap-1.5 font-medium">
+                <p className="flex items-center gap-1">
+                  📍 {item.location_name}
+                </p>
+                <p className="flex items-center gap-1">🏷️ {item.category}</p>
+              </div>
+
+              {/* ADMIN CONTROLS */}
+              {isAdmin && (
+                <div className="mt-5 pt-4 border-t border-gray-100 flex gap-2">
+                  <button
+                    onClick={() => handleResolve(item.id)}
+                    disabled={item.status === "resolved"}
+                    className="flex-1 bg-green-50 hover:bg-green-100 text-green-700 text-sm font-bold py-2 rounded transition disabled:opacity-50"
+                  >
+                    Resolve
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="flex-1 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-bold py-2 rounded transition"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
-          ))
+          </div>
+        ))}
+
+        {items.length === 0 && (
+          <p className="text-gray-500 col-span-full text-center py-12">
+            No lost items reported yet.
+          </p>
         )}
       </div>
     </div>

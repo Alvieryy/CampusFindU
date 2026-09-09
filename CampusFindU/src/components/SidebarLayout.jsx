@@ -61,6 +61,8 @@ export default function SidebarLayout({ children }) {
       ? [
           { name: "Dashboard", path: "/dashboard", icon: "" },
           { name: "Users", path: "/admin/users", icon: "" },
+          { name: "Lost Items", path: "/lost-items", icon: "" }, // <--- ADD THIS
+          { name: "Found Items", path: "/found-items", icon: "" },
           { name: "Review Claims", path: "/admin/claims", icon: "" },
           { name: "Reports", path: "/admin/reports", icon: "" },
           { name: "System Settings", path: "/admin/settings", icon: "" },
