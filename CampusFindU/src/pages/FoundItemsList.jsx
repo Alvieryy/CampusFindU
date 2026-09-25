@@ -36,7 +36,7 @@ export default function FoundItemsList() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>Found Items 📦</h2>
+      <h2>Found Items </h2>
       <input
         type="text"
         placeholder="Search..."

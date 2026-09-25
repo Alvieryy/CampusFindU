@@ -41,7 +41,7 @@ export default function Login() {
               alt="CampusFindU Logo"
               className="w-24 h-28 object-contain"
             />
-            <h1 className="text-2xl font-black text-blue-900 tracking-tight leading-tight">
+            <h1 className="text-2xl font-black text-mmsu-green tracking-tight leading-tight">
               CampusFindU:
               <br />
               LOST AND FOUND
@@ -70,7 +70,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition placeholder-gray-400 font-medium bg-gray-50/50"
+                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition placeholder-gray-400 font-medium bg-gray-50/50"
               />
             </div>
 
@@ -81,7 +81,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition placeholder-gray-400 font-medium bg-gray-50/50"
+                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition placeholder-gray-400 font-medium bg-gray-50/50"
               />
               <img
                 src={showPassword ? "/eye.png" : "/hidden.png"}
@@ -95,13 +95,13 @@ export default function Login() {
               <label className="flex items-center gap-2 text-gray-500 cursor-pointer hover:text-gray-700 transition">
                 <input
                   type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                  className="w-4 h-4 rounded border-gray-300 text-mmsu-green focus:ring-mmsu-green"
                 />
                 Remember me
               </label>
               <Link
                 to="/forgot-password"
-                className="text-blue-600 hover:underline"
+                className="text-mmsu-green hover:underline"
               >
                 Forgot Password?
               </Link>
@@ -110,7 +110,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 text-white font-bold text-lg p-4 rounded-lg hover:bg-blue-800 transition shadow-lg mt-4 disabled:opacity-50"
+              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -119,7 +119,7 @@ export default function Login() {
           {/* BOTTOM TEXT */}
           <p className="text-center text-gray-500 text-sm mt-10 font-medium">
             Don't have an account?{" "}
-            <Link to="/register" className="text-blue-600 hover:underline">
+            <Link to="/register" className="text-mmsu-green hover:underline">
               Register here
             </Link>
             .<br />
@@ -129,13 +129,13 @@ export default function Login() {
       </div>
 
       {/* RIGHT SIDE: BEAUTIFUL CAMPUS IMAGE */}
-      <div className="hidden lg:block lg:w-1/2 bg-blue-900 relative">
+      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
         <img
           src="/school.jpg"
           alt="University Campus Building"
           className="w-full h-full object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
       </div>
     </div>
   );

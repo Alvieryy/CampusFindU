@@ -15,7 +15,7 @@ export default function ForgotPassword() {
     setMessage("");
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:5173/reset-password",
+      redirectTo: `${window.location.origin}/reset-password`,
     });
 
     if (error) {
@@ -32,7 +32,7 @@ export default function ForgotPassword() {
       <div className="absolute top-8 left-8">
         <Link
           to="/login"
-          className="text-blue-600 font-bold hover:underline flex items-center gap-2"
+          className="text-mmsu-green font-bold hover:underline flex items-center gap-2"
         >
           <span>&larr;</span> Back to Login
         </Link>
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
 
       {/* Main Card */}
       <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-200 w-full max-w-md text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-mmsu-green mb-2">
           Forgot Password
         </h2>
         <p className="text-gray-500 text-sm mb-8 px-4">
@@ -69,14 +69,14 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+              className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-700 text-white font-bold text-lg p-4 rounded-lg hover:bg-blue-800 transition shadow-md mt-2 disabled:opacity-50"
+            className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-md mt-2 disabled:opacity-50"
           >
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
@@ -84,7 +84,7 @@ export default function ForgotPassword() {
 
         <p className="mt-8 text-sm font-medium text-gray-500">
           Remember your password?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link to="/login" className="text-mmsu-green hover:underline">
             Login
           </Link>
         </p>

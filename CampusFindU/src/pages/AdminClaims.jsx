@@ -51,7 +51,8 @@ export default function AdminClaims() {
       await axios.post(
         "https://campusfindu-backend.onrender.com/api/notifications",
         {
-          user_id: claim.user_id,
+          user_id: claim.claimant_id,
+          title: `Claim ${decision === "approved" ? "Approved" : "Rejected"}`,
           message: `Your claim for item #${claim.found_item_id} has been ${decision}.`,
           type: decision === "approved" ? "success" : "error",
         },
@@ -93,7 +94,7 @@ export default function AdminClaims() {
                     Claim for Item #{claim.found_item_id}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Submitted by User: {claim.user_id}
+                    Submitted by User: {claim.claimant_id}
                   </p>
                 </div>
                 <span

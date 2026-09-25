@@ -30,7 +30,9 @@ export default function Notifications() {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`https://campusfindu-backend.onrender.com/api/notifications/${id}/read`);
+      await axios.put(
+        `https://campusfindu-backend.onrender.com/api/notifications/${id}/read`,
+      );
       // Update the screen instantly
       setNotifications(
         notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
@@ -42,9 +44,7 @@ export default function Notifications() {
 
   return (
     <div className="max-w-3xl mx-auto mt-10 p-5 font-sans">
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">
-        Notifications 🔔
-      </h2>
+      <h2 className="text-3xl font-bold text-gray-800 mb-8">Notifications</h2>
 
       <div className="flex flex-col gap-4">
         {notifications.length === 0 ? (

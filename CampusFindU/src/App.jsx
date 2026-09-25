@@ -36,6 +36,9 @@ import SystemSettings from "./pages/SystemSettings";
 import GenerateReports from "./pages/GenerateReports";
 
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword"; // <-- Added this
+
+import Profile from "./pages/Profile";
 
 // Helper component for the new Dashboard layout
 function DashboardCard({ title, desc, link, icon, colorClass }) {
@@ -78,6 +81,8 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* Wrap all protected routes inside the SidebarLayout! */}
         <Route
           path="/*"
@@ -107,7 +112,7 @@ export default function App() {
                   <Route path="/admin/users" element={<ManageUsers />} />
                   <Route path="/admin/settings" element={<SystemSettings />} />
                   <Route path="/admin/reports" element={<GenerateReports />} />
-                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Routes>
               </SidebarLayout>
             </ProtectedRoute>

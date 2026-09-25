@@ -61,7 +61,7 @@ export default function CampusMap() {
 
   return (
     <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-      <h2>MMSU Campus Map 🗺️</h2>
+      <h2>MMSU Campus Map</h2>
       <p style={{ fontWeight: "bold" }}>🔴 Lost Items | 🟢 Found Items</p>
 
       <div
@@ -76,18 +76,12 @@ export default function CampusMap() {
         <MapContainer
           center={mmsuCenter}
           zoom={15}
-          minZoom={15}
-          maxBounds={campusBounds}
-          maxBoundsViscosity={1.0}
+          minZoom={10}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
             attribution="&copy; OpenStreetMap"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Polygon
-            positions={mmsuPolygon}
-            pathOptions={{ color: "black", weight: 3, fillOpacity: 0.1 }}
           />
 
           {/* Drop RED pins for Lost Items */}

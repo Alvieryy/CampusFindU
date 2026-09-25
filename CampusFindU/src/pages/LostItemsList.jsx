@@ -130,9 +130,7 @@ export default function LostItemsList() {
               </p>
 
               <div className="mt-auto text-xs text-gray-500 flex flex-col gap-1.5 font-medium">
-                <p className="flex items-center gap-1">
-                  📍 {item.location_name}
-                </p>
+                <p className="flex items-center gap-1">{item.location_name}</p>
                 <p className="flex items-center gap-1">🏷️ {item.category}</p>
               </div>
 

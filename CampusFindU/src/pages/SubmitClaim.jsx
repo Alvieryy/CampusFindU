@@ -53,7 +53,6 @@ export default function SubmitClaim() {
         proof_image_url: finalImageUrl,
       });
 
-      alert("Claim submitted! An admin will review your proof shortly.");
       Swal.fire({
         title: "Success!",
         text: "Claim submitted.",

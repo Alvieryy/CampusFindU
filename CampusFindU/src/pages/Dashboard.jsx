@@ -199,7 +199,7 @@ export default function Dashboard() {
   if (profile.userType === "admin") {
     return (
       <div className="font-sans max-w-7xl mx-auto pb-12">
-        <h2 className="text-3xl font-black text-gray-900 mb-6">
+        <h2 className="text-3xl font-black text-mmsu-green mb-6">
           Overview Statistics
         </h2>
 
@@ -343,8 +343,8 @@ export default function Dashboard() {
   // ==========================================
   return (
     <div className="font-sans max-w-6xl mx-auto pb-12">
-      <h2 className="text-3xl font-black text-gray-900 mb-2">
-        Welcome, {profile.fullName}! 👋
+      <h2 className="text-3xl font-black text-mmsu-green mb-2">
+        Welcome, {profile.fullName}!
       </h2>
       <p className="text-gray-500 mb-8">
         Here's what's happening with your reports and claims.

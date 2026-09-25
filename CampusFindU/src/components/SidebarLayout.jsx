@@ -7,7 +7,7 @@ export default function SidebarLayout({ children }) {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // <--- ADD THIS
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profile, setProfile] = useState({
     fullName: "Loading...",
     userType: "...",
@@ -34,18 +34,16 @@ export default function SidebarLayout({ children }) {
     } catch (error) {}
   };
 
-  // Fetch the actual user from the database
   const fetchUserProfile = async (uid) => {
     const { data, error } = await supabase
       .from("Users")
-      .select("fullName, userType")
+      .select("fullName, userType, avatarUrl")
       .eq("id", uid)
       .maybeSingle();
 
     if (data) setProfile(data);
   };
 
-  // Helper function to extract initials (e.g. "Juan Dela Cruz" -> "JC")
   const getInitials = (name) => {
     if (!name || name === "Loading...") return "";
     const names = name.split(" ");
@@ -55,13 +53,12 @@ export default function SidebarLayout({ children }) {
     return name[0].toUpperCase();
   };
 
-  // If the user is an admin, show the Admin menu. Otherwise, show the Student menu!
   const menuItems =
     profile.userType === "admin"
       ? [
           { name: "Dashboard", path: "/dashboard", icon: "" },
           { name: "Users", path: "/admin/users", icon: "" },
-          { name: "Lost Items", path: "/lost-items", icon: "" }, // <--- ADD THIS
+          { name: "Lost Items", path: "/lost-items", icon: "" },
           { name: "Found Items", path: "/found-items", icon: "" },
           { name: "Review Claims", path: "/admin/claims", icon: "" },
           { name: "Reports", path: "/admin/reports", icon: "" },
@@ -89,10 +86,11 @@ export default function SidebarLayout({ children }) {
         />
       )}
 
+      {/* CHANGED: bg-[#0a192f] is now bg-mmsu-green */}
       <aside
-        className={`fixed inset-y-0 left-0 w-64 bg-[#0a192f] text-white flex flex-col shadow-xl z-30 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 w-64 bg-mmsu-green text-white flex flex-col shadow-xl z-30 transform transition-transform duration-300 md:relative md:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
-        <div className="p-6 font-bold text-xl tracking-wider border-b border-gray-800">
+        <div className="p-6 font-bold text-xl tracking-wider border-b border-mmsu-light-green">
           CampusFindU
         </div>
         <nav className="flex-1 p-4 flex flex-col gap-2">
@@ -102,8 +100,13 @@ export default function SidebarLayout({ children }) {
               <Link
                 key={item.name}
                 to={item.path}
-                onClick={() => setIsMobileMenuOpen(false)} // <--- ADD THIS
-                className={`flex items-center gap-3 p-3 rounded-lg transition ${isActive ? "bg-blue-600 text-white font-bold" : "text-gray-300 hover:bg-gray-800 hover:text-white font-medium"}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                // CHANGED: The active and hover states now use MMSU Gold and MMSU Light Green!
+                className={`flex items-center gap-3 p-3 rounded-lg transition ${
+                  isActive
+                    ? "bg-mmsu-gold text-mmsu-green font-bold shadow-md"
+                    : "text-gray-200 hover:bg-mmsu-light-green hover:text-white font-medium"
+                }`}
               >
                 <span className="text-lg">{item.icon}</span>
                 {item.name}
@@ -121,19 +124,16 @@ export default function SidebarLayout({ children }) {
             await supabase.auth.signOut();
             window.location.href = "/login";
           }}
-          className="p-4 text-left text-gray-400 hover:text-white flex gap-3 items-center border-t border-gray-800 font-medium"
+          className="p-4 text-left text-gray-400 hover:text-white flex gap-3 items-center border-t border-mmsu-light-green font-medium"
         >
           Logout
         </button>
       </aside>
 
-      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* TOPBAR */}
-        {/* TOPBAR */}
-        <header className="bg-[#0a192f] text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-md z-10">
+        {/* CHANGED: bg-[#0a192f] is now bg-mmsu-green */}
+        <header className="bg-mmsu-green text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-md z-10">
           <div className="flex items-center">
-            {/* Hamburger Button for Mobile */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="md:hidden text-white text-2xl mr-4"
@@ -146,11 +146,19 @@ export default function SidebarLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-purple-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm tracking-widest">
-              {getInitials(profile.fullName)}
-            </div>
+            {profile?.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover shadow-sm border-2 border-mmsu-gold"
+              />
+            ) : (
+              <div className="bg-mmsu-gold text-mmsu-green rounded-full w-10 h-10 flex items-center justify-center font-bold shadow-sm tracking-widest border-2 border-mmsu-gold">
+                {getInitials(profile.fullName)}
+              </div>
+            )}
             <div className="text-sm hidden sm:block">
-              <p className="font-bold">{profile.fullName}</p>
+              <p className="font-bold text-white">{profile.fullName}</p>
               <p className="text-gray-300 text-xs capitalize">
                 {profile.userType}
               </p>
@@ -158,7 +166,6 @@ export default function SidebarLayout({ children }) {
           </div>
         </header>
 
-        {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto p-8">{children}</main>
       </div>
     </div>

@@ -70,7 +70,7 @@ export default function Register() {
           <div className="mb-8">
             <Link
               to="/login"
-              className="text-gray-400 font-bold hover:text-blue-600 transition flex items-center gap-2 mb-6"
+              className="text-gray-400 font-bold hover:text-mmsu-green transition flex items-center gap-2 mb-6"
             >
               <span>&larr;</span> Back to Login
             </Link>
@@ -81,7 +81,7 @@ export default function Register() {
                 alt="CampusFindU Logo"
                 className="w-16 h-20 object-contain"
               />
-              <h1 className="text-3xl font-black text-blue-900 tracking-tight">
+              <h1 className="text-3xl font-black text-mmsu-green tracking-tight">
                 Create an Account
               </h1>
             </div>
@@ -109,7 +109,7 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
               />
             </div>
 
@@ -122,7 +122,7 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, userType: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-white"
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
               >
                 <option value="student">Student</option>
                 <option value="faculty">Faculty</option>
@@ -146,7 +146,7 @@ export default function Register() {
                   onChange={(e) =>
                     setFormData({ ...formData, studId: e.target.value })
                   }
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
                 />
               </div>
             )}
@@ -162,7 +162,7 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, contactNum: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
               />
             </div>
 
@@ -177,7 +177,7 @@ export default function Register() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
               />
             </div>
 
@@ -193,7 +193,7 @@ export default function Register() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="w-full p-3 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-600 transition bg-gray-50/50"
+                  className="w-full p-3 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
                 />
                 <img
                   src={showPassword ? "/eye.png" : "/hidden.png"}
@@ -207,7 +207,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-700 text-white font-bold text-lg p-4 rounded-lg hover:bg-blue-800 transition shadow-lg mt-4 disabled:opacity-50"
+              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
             >
               {loading ? "Creating Account..." : "Register"}
             </button>
@@ -216,13 +216,13 @@ export default function Register() {
       </div>
 
       {/* RIGHT SIDE: YOUR SCHOOL IMAGE */}
-      <div className="hidden lg:block lg:w-1/2 bg-blue-900 relative">
+      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
         <img
           src="/school.jpg"
           alt="School Campus"
           className="w-full h-full object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-blue-900/10 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
       </div>
     </div>
   );

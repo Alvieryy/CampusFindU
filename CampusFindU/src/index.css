@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@theme {
+  --color-mmsu-green: #0A4222;
+  --color-mmsu-gold: #F5B013;
+  --color-mmsu-light-green: #146C3A;
+}
