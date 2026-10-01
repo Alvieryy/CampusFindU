@@ -35,47 +35,68 @@ export default function FoundItemsList() {
   if (loading) return <div style={{ padding: "20px" }}>Loading items...</div>;
 
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h2>Found Items </h2>
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ width: "100%", padding: "10px", marginBottom: "20px" }}
-      />
+    <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-green-600">Found Items Board</h2>
+        <input
+          type="text"
+          placeholder="Search items..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full md:w-64 p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition shadow-sm"
+        />
+      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredItems.length === 0 ? (
-          <p>No found items.</p>
+          <p className="text-gray-500 col-span-full text-center py-12">
+            No found items matched your search.
+          </p>
         ) : (
           filteredItems.map((item) => (
             <div
               key={item.id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "15px",
-                borderRadius: "5px",
-              }}
+              className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col bg-white"
             >
-              <h3 style={{ margin: "0 0 10px 0", color: "#44aa44" }}>
-                {item.title}
-              </h3>
-              <p style={{ margin: "0 0 5px 0" }}>
-                <strong>Category:</strong> {item.category}
-              </p>
-              <p style={{ margin: "0 0 5px 0" }}>
-                <strong>Location Found:</strong> {item.location_name}
-              </p>
-              <p style={{ margin: "0" }}>
-                <em>"{item.description}"</em>
-              </p>
-              <Link
-                to={`/items/found/${item.id}`}
-                style={{ textDecoration: "none", color: "blue" }}
-              >
-                View Full Details →
-              </Link>
+              {item.image_url ? (
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="w-full h-48 object-cover"
+                />
+              ) : (
+                <div className="w-full h-48 bg-green-50 flex items-center justify-center text-green-600/50 font-medium text-sm">
+                  No Image Provided
+                </div>
+              )}
+
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-bold text-lg text-gray-900 truncate pr-2">
+                    {item.title}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${item.status === "claimed" ? "bg-purple-100 text-purple-700" : "bg-green-100 text-green-700"}`}
+                  >
+                    {item.status || "found"}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                  {item.description}
+                </p>
+
+                <div className="mt-auto text-xs text-gray-500 flex flex-col gap-1.5 font-medium mb-4">
+                  <p className="flex items-center gap-1">📍 {item.location_name}</p>
+                  <p className="flex items-center gap-1">🏷️ {item.category}</p>
+                </div>
+
+                <Link
+                  to={`/items/found/${item.id}`}
+                  className="w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-md transition text-sm shadow-sm"
+                >
+                  View Details & Claim
+                </Link>
+              </div>
             </div>
           ))
         )}

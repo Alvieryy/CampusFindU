@@ -75,13 +75,13 @@ export default function Register() {
               <span>&larr;</span> Back to Login
             </Link>
 
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-6 sm:mb-2 text-center sm:text-left">
               <img
                 src="/logo.png"
                 alt="CampusFindU Logo"
                 className="w-16 h-20 object-contain"
               />
-              <h1 className="text-3xl font-black text-mmsu-green tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-mmsu-green tracking-tight mt-2 sm:mt-0">
                 Create an Account
               </h1>
             </div>

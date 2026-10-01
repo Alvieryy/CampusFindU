@@ -86,7 +86,7 @@ export default function LostItemsList() {
     );
 
   return (
-    <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+    <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-red-600">Lost Items Board</h2>
         {isAdmin && (

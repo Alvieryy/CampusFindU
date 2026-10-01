@@ -35,13 +35,13 @@ export default function Login() {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative">
         <div className="w-full max-w-md">
           {/* LOGO HEADER */}
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
             <img
               src="/logo.png"
               alt="CampusFindU Logo"
-              className="w-24 h-28 object-contain"
+              className="w-20 h-24 sm:w-24 sm:h-28 object-contain"
             />
-            <h1 className="text-2xl font-black text-mmsu-green tracking-tight leading-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-mmsu-green tracking-tight leading-tight mt-2 sm:mt-0">
               CampusFindU:
               <br />
               LOST AND FOUND

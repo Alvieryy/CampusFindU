@@ -27,67 +27,90 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center font-sans p-4 relative">
-      {/* Back Button */}
-      <div className="absolute top-8 left-8">
-        <Link
-          to="/login"
-          className="text-mmsu-green font-bold hover:underline flex items-center gap-2"
-        >
-          <span>&larr;</span> Back to Login
-        </Link>
+    <div className="min-h-screen flex font-sans bg-gray-50">
+      {/* LEFT SIDE: FORM */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative overflow-y-auto">
+        <div className="w-full max-w-md my-auto">
+          <div className="mb-8">
+            <Link
+              to="/login"
+              className="text-gray-400 font-bold hover:text-mmsu-green transition flex items-center gap-2 mb-6"
+            >
+              <span>&larr;</span> Back to Login
+            </Link>
+
+            {/* LOGO HEADER */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
+              <img
+                src="/logo.png"
+                alt="CampusFindU Logo"
+                className="w-20 h-24 sm:w-24 sm:h-28 object-contain"
+              />
+              <h1 className="text-xl sm:text-2xl font-black text-mmsu-green tracking-tight leading-tight mt-2 sm:mt-0">
+                CampusFindU:
+                <br />
+                LOST AND FOUND
+                <br />
+                MANAGEMENT SYSTEM
+              </h1>
+            </div>
+
+            <p className="text-gray-500 font-medium mt-4">
+              Enter your email address and we'll send you a link to reset your password.
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div className="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm font-bold border border-green-200">
+              {message}
+            </div>
+          )}
+
+          <form onSubmit={handleReset} className="flex flex-col gap-5">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
+            >
+              {loading ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
+          
+          <p className="mt-8 text-sm font-medium text-gray-500 text-center">
+            Remember your password?{" "}
+            <Link to="/login" className="text-mmsu-green font-bold hover:underline">
+              Login
+            </Link>
+          </p>
+        </div>
       </div>
 
-      {/* Main Card */}
-      <div className="bg-white p-10 rounded-2xl shadow-sm border border-gray-200 w-full max-w-md text-center">
-        <h2 className="text-2xl font-bold text-mmsu-green mb-2">
-          Forgot Password
-        </h2>
-        <p className="text-gray-500 text-sm mb-8 px-4">
-          Enter your email address and we'll send you a link to reset your
-          password.
-        </p>
-
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
-            {error}
-          </div>
-        )}
-        {message && (
-          <div className="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm font-bold border border-green-200">
-            {message}
-          </div>
-        )}
-
-        <form onSubmit={handleReset} className="flex flex-col gap-5 text-left">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-md mt-2 disabled:opacity-50"
-          >
-            {loading ? "Sending..." : "Send Reset Link"}
-          </button>
-        </form>
-
-        <p className="mt-8 text-sm font-medium text-gray-500">
-          Remember your password?{" "}
-          <Link to="/login" className="text-mmsu-green hover:underline">
-            Login
-          </Link>
-        </p>
+      {/* RIGHT SIDE: BEAUTIFUL CAMPUS IMAGE */}
+      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
+        <img
+          src="/school.jpg"
+          alt="University Campus Building"
+          className="w-full h-full object-cover opacity-90"
+        />
+        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
       </div>
     </div>
   );
