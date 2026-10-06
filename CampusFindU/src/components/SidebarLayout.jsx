@@ -14,12 +14,60 @@ export default function SidebarLayout({ children }) {
   });
 
   useEffect(() => {
+    let currentUserId = null;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        currentUserId = session.user.id;
         fetchUnreadCount(session.user.id);
         fetchUserProfile(session.user.id);
+        supabase.from("Users").update({ is_online: true }).eq("id", session.user.id).then();
       }
     });
+
+    const handleUnload = () => {
+      if (currentUserId) {
+        // Best effort to set offline when closing tab
+        supabase.from("Users").update({ is_online: false }).eq("id", currentUserId).then();
+      }
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, []);
+
+  // Idle Auto-Logout Security Feature (15 Minutes)
+  useEffect(() => {
+    let idleTimer;
+
+    const handleAutoLogout = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.from("Users").update({ is_online: false }).eq("id", session.user.id);
+        await supabase.auth.signOut();
+        window.location.href = "/login?timeout=true";
+      }
+    };
+
+    const resetTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(handleAutoLogout, 15 * 60 * 1000); // 15 minutes in milliseconds
+    };
+
+    // Reset timer on any user interaction
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+    window.addEventListener("click", resetTimer);
+    window.addEventListener("scroll", resetTimer);
+
+    // Start timer immediately
+    resetTimer();
+
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+      window.removeEventListener("click", resetTimer);
+      window.removeEventListener("scroll", resetTimer);
+    };
   }, []);
 
   const fetchUnreadCount = async (uid) => {
@@ -121,6 +169,10 @@ export default function SidebarLayout({ children }) {
         </nav>
         <button
           onClick={async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+              await supabase.from("Users").update({ is_online: false }).eq("id", session.user.id);
+            }
             await supabase.auth.signOut();
             window.location.href = "/login";
           }}
@@ -166,7 +218,34 @@ export default function SidebarLayout({ children }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-gray-50 flex flex-col">
+          <div className="flex-1 p-4 md:p-8">
+            {children}
+          </div>
+
+          <footer className="bg-white border-t border-gray-200 mt-auto">
+            <div className="max-w-7xl mx-auto px-6 py-6">
+              <div className="md:flex md:items-center md:justify-between">
+                <div className="flex justify-center md:justify-start mb-4 md:mb-0">
+                  <p className="text-center md:text-left text-sm text-gray-500">
+                    &copy; {new Date().getFullYear()} CampusFindU. All rights reserved.<br/>
+                    <span className="block mt-1">Location: Batac City, Ilocos Norte</span>
+                  </p>
+                </div>
+                <div className="flex justify-center md:justify-end gap-6 text-sm">
+                  <a 
+                    href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-500 hover:text-mmsu-green transition-colors font-medium"
+                  >
+                    Contact Developer
+                  </a>
+                </div>
+              </div>
+            </div>
+          </footer>
+        </main>
       </div>
     </div>
   );

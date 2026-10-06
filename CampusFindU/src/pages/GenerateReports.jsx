@@ -1,8 +1,110 @@
+import { useState } from "react";
+import axios from "axios";
+import Swal from "sweetalert2";
+
 export default function GenerateReports() {
+  const [reportType, setReportType] = useState("Lost Items Summary");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [format, setFormat] = useState("PDF");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const generateCSV = (data, filename) => {
+    if (data.length === 0) {
+      return Swal.fire("Empty", "No records found for this date range.", "info");
+    }
+    const headers = Object.keys(data[0]).join(",");
+    const rows = data.map(obj => 
+      Object.values(obj).map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
+    ).join("\n");
+    const csvContent = `${headers}\n${rows}`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${filename}.csv`;
+    link.click();
+  };
+
+  const generatePDF = (data, title) => {
+    if (data.length === 0) {
+      return Swal.fire("Empty", "No records found for this date range.", "info");
+    }
+    const headers = Object.keys(data[0]);
+    let html = `
+      <html>
+        <head>
+          <title>${title}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            h2 { color: #0A4222; text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #0A4222; color: white; }
+          </style>
+        </head>
+        <body>
+          <h2>${title}</h2>
+          <p>Date Generated: ${new Date().toLocaleDateString()}</p>
+          <table>
+            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+            <tbody>
+              ${data.map(row => `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`).join('')}
+            </tbody>
+          </table>
+          <script>window.print(); setTimeout(() => window.close(), 500);</script>
+        </body>
+      </html>
+    `;
+    const printWindow = window.open("", "_blank");
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      let endpoint = "";
+      if (reportType === "Lost Items Summary") endpoint = "/api/lost-items";
+      else if (reportType === "Found Items Summary") endpoint = "/api/found-items";
+      else if (reportType === "Claims Report") endpoint = "/api/claims"; // assuming this exists
+
+      const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
+      let data = response.data;
+
+      // Filter by date
+      if (dateFrom) {
+        data = data.filter(item => new Date(item.created_at) >= new Date(dateFrom));
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        data = data.filter(item => new Date(item.created_at) <= to);
+      }
+
+      // Format data slightly to remove complex objects if any
+      const cleanData = data.map(item => {
+        const { id, title, description, category, status, created_at, location_name } = item;
+        return { ID: id, Title: title || 'N/A', Category: category || 'N/A', Location: location_name || 'N/A', Status: status, Date: new Date(created_at).toLocaleDateString() };
+      });
+
+      if (format === "Excel (CSV)") {
+        generateCSV(cleanData, reportType.replace(/\s+/g, '_'));
+      } else {
+        generatePDF(cleanData, reportType);
+      }
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Failed to generate report. Check network.", "error");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="max-w-lg font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">
       <h2 className="text-xl font-bold text-gray-900 mb-6">
-        4.3 Generate Reports
+        Generate Reports
       </h2>
 
       <div className="flex flex-col gap-5">
@@ -10,8 +112,11 @@ export default function GenerateReports() {
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Report Type
           </label>
-          <select className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white transition shadow-sm">
-            <option>Select report type</option>
+          <select 
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
+          >
             <option>Lost Items Summary</option>
             <option>Found Items Summary</option>
             <option>Claims Report</option>
@@ -25,7 +130,9 @@ export default function GenerateReports() {
             </label>
             <input
               type="date"
-              className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green transition shadow-sm"
             />
           </div>
           <div>
@@ -34,7 +141,9 @@ export default function GenerateReports() {
             </label>
             <input
               type="date"
-              className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition shadow-sm"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green transition shadow-sm"
             />
           </div>
         </div>
@@ -43,14 +152,22 @@ export default function GenerateReports() {
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Format
           </label>
-          <select className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white transition shadow-sm">
+          <select 
+            value={format}
+            onChange={(e) => setFormat(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
+          >
             <option>PDF</option>
             <option>Excel (CSV)</option>
           </select>
         </div>
 
-        <button className="w-full bg-blue-600 text-white font-bold px-8 py-3 rounded-lg hover:bg-blue-700 shadow-md mt-4 transition">
-          Generate Report
+        <button 
+          onClick={handleGenerate}
+          disabled={isGenerating}
+          className="w-full bg-mmsu-green text-white font-bold px-8 py-3 rounded-lg hover:bg-mmsu-light-green shadow-md mt-4 transition disabled:opacity-50"
+        >
+          {isGenerating ? "Generating..." : "Generate Report"}
         </button>
       </div>
     </div>

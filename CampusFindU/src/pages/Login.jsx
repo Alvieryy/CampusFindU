@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,6 +11,20 @@ export default function Login() {
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("timeout") === "true") {
+      Swal.fire({
+        title: "Session Expired",
+        text: "You were automatically logged out due to 15 minutes of inactivity for your security.",
+        icon: "info",
+        confirmButtonColor: "#0A4222"
+      });
+      // Remove query param to prevent it from showing again on refresh
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,6 +39,10 @@ export default function Login() {
     if (error) {
       setError(error.message);
     } else {
+      await supabase
+        .from("Users")
+        .update({ is_online: true })
+        .eq("id", data.user.id);
       window.location.href = "/dashboard";
     }
     setLoading(false);
@@ -117,14 +136,27 @@ export default function Login() {
           </form>
 
           {/* BOTTOM TEXT */}
-          <p className="text-center text-gray-500 text-sm mt-10 font-medium">
-            Don't have an account?{" "}
-            <Link to="/register" className="text-mmsu-green hover:underline">
-              Register here
-            </Link>
-            .<br />
-            Need help? Contact your administrator.
-          </p>
+          <div className="text-center text-gray-500 text-sm mt-10 font-medium flex flex-col gap-1">
+            <p>
+              Don't have an account?{" "}
+              <Link to="/register" className="text-mmsu-green font-bold hover:underline">
+                Register here
+              </Link>
+            </p>
+            <p className="mt-4 text-xs">
+              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos Norte
+            </p>
+            <p className="text-xs mt-1">
+              <a 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer" 
+                className="text-gray-500 hover:text-mmsu-green transition-colors"
+              >
+                Contact Developer
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 

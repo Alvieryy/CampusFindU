@@ -212,6 +212,23 @@ export default function Register() {
               {loading ? "Creating Account..." : "Register"}
             </button>
           </form>
+          
+          {/* BOTTOM TEXT */}
+          <div className="text-center text-gray-500 text-sm mt-8 font-medium flex flex-col gap-1">
+            <p className="text-xs">
+              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos Norte
+            </p>
+            <p className="text-xs mt-1">
+              <a 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer" 
+                className="text-gray-500 hover:text-mmsu-green transition-colors"
+              >
+                Contact Developer
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 
