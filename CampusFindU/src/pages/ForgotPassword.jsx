@@ -14,8 +14,14 @@ export default function ForgotPassword() {
     setError("");
     setMessage("");
 
+    const redirectUrl =
+      window.location.origin.includes("localhost") ||
+      window.location.origin.includes("capacitor")
+        ? "https://campusfindu.vercel.app/reset-password"
+        : `${window.location.origin}/reset-password`;
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: redirectUrl,
     });
 
     if (error) {

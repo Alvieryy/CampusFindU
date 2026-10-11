@@ -103,15 +103,39 @@ export default function LostItemsList() {
             className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition flex flex-col bg-white"
           >
             {item.image_url ? (
-              <img
-                src={item.image_url}
-                alt={item.title}
-                className="w-full h-48 object-cover"
-              />
+              <>
+                {/* Desktop View: Original full image */}
+                <img
+                  src={item.image_url}
+                  alt={item.title}
+                  className="hidden md:block w-full h-48 object-cover"
+                />
+                {/* Mobile View: Compact button */}
+                <button 
+                  onClick={() => {
+                    Swal.fire({
+                      title: item.title,
+                      imageUrl: item.image_url,
+                      imageAlt: item.title,
+                      width: '90%',
+                      imageWidth: '100%',
+                      confirmButtonColor: '#0A4222'
+                    });
+                  }}
+                  className="md:hidden w-full h-12 bg-gray-100 hover:bg-gray-200 text-mmsu-green font-bold flex items-center justify-center transition border-b border-gray-200"
+                >
+                  View Image
+                </button>
+              </>
             ) : (
-              <div className="w-full h-48 bg-gray-50 flex items-center justify-center text-gray-400 font-medium">
-                No Image Provided
-              </div>
+              <>
+                <div className="hidden md:flex w-full h-48 bg-gray-50 items-center justify-center text-gray-400 font-medium">
+                  No Image Provided
+                </div>
+                <div className="md:hidden w-full h-12 bg-gray-50 flex items-center justify-center text-gray-400 font-medium text-sm border-b border-gray-200">
+                  No Image Provided
+                </div>
+              </>
             )}
 
             <div className="p-5 flex-1 flex flex-col">
