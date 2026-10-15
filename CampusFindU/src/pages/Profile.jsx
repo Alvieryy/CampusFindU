@@ -96,7 +96,7 @@ export default function Profile() {
       .from("Users")
       .update({
         fullName: formData.fullName,
-        contactNum: formData.contactNum,
+        contactNum: formData.contactNum.trim(),
         studId: formData.studId,
         employeeId: formData.employeeId,
       })
@@ -124,7 +124,7 @@ export default function Profile() {
     );
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+    <div className="max-w-4xl mx-auto bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
       <h2 className="text-3xl font-black text-mmsu-green mb-8 border-b pb-4">
         My Profile
       </h2>
@@ -195,17 +195,35 @@ export default function Profile() {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
+              <label
+                htmlFor="contactNum"
+                className="block text-sm font-bold text-gray-700 mb-1"
+              >
                 Contact Number
               </label>
               <input
-                type="text"
+                id="contactNum"
+                type="tel"
+                autoComplete="tel"
+                placeholder="e.g. 09123456789"
+                aria-describedby="contact-number-help"
+                required={profile?.userType === "visitor"}
                 value={formData.contactNum}
                 onChange={(e) =>
                   setFormData({ ...formData, contactNum: e.target.value })
                 }
                 className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
               />
+              <p
+                id="contact-number-help"
+                className="mt-2 text-sm text-gray-500"
+              >
+                {profile?.userType === "visitor"
+                  ? "Required for visitors. "
+                  : "Optional. "}
+                Add a phone number so campus administrators can contact you
+                about your reports and claims.
+              </p>
             </div>
 
             {profile?.userType === "student" && (

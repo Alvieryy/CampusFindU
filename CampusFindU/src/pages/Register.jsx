@@ -19,6 +19,12 @@ export default function Register() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (
+      !["student", "faculty", "staff", "visitor"].includes(formData.userType)
+    ) {
+      setError("Please select a valid registration role.");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -42,7 +48,8 @@ export default function Register() {
           studId: formData.userType === "student" ? formData.studId : null,
           employeeId:
             formData.userType === "faculty" ? formData.employeeId : null,
-          contactNum: formData.contactNum,
+          contactNum:
+            formData.userType === "visitor" ? formData.contactNum.trim() : "",
           email: formData.email, // <--- ADD THIS LINE HERE!
         },
       ]);
@@ -65,15 +72,26 @@ export default function Register() {
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">
       {/* LEFT SIDE: FORM */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-12 bg-white relative overflow-y-auto">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5 sm:p-8 lg:p-12 bg-white relative overflow-y-auto">
         <div className="w-full max-w-md my-auto">
           <div className="mb-8">
-            <Link
-              to="/login"
-              className="text-gray-400 font-bold hover:text-mmsu-green transition flex items-center gap-2 mb-6"
+            <nav
+              aria-label="Account navigation"
+              className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm"
             >
-              <span>&larr;</span> Back to Login
-            </Link>
+              <Link
+                to="/login"
+                className="inline-flex min-h-11 items-center gap-2 text-gray-500 font-bold hover:text-mmsu-green focus-visible:outline-2 focus-visible:outline-mmsu-green rounded-lg"
+              >
+                <span aria-hidden="true">&larr;</span> Back to Login
+              </Link>
+              <Link
+                to="/admin/login"
+                className="ml-auto inline-flex min-h-11 items-center justify-center rounded-lg border border-mmsu-green/20 px-4 py-2 font-bold text-mmsu-green hover:bg-green-50 focus-visible:outline-2 focus-visible:outline-mmsu-green transition"
+              >
+                Log in as admin
+              </Link>
+            </nav>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-6 sm:mb-2 text-center sm:text-left">
               <img
@@ -105,6 +123,7 @@ export default function Register() {
               <input
                 type="text"
                 required
+                placeholder="e.g. Juan Dela Cruz"
                 value={formData.fullName}
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
@@ -128,7 +147,6 @@ export default function Register() {
                 <option value="faculty">Faculty</option>
                 <option value="staff">Staff</option>
                 <option value="visitor">Visitor</option>
-                <option value="admin">Admin</option>
               </select>
             </div>
 
@@ -142,6 +160,11 @@ export default function Register() {
                 <input
                   type="text"
                   required
+                  placeholder={
+                    formData.userType === "student"
+                      ? "2X-140XXX"
+                      : "e.g. EMP-001234"
+                  }
                   value={formData.studId}
                   onChange={(e) =>
                     setFormData({ ...formData, studId: e.target.value })
@@ -151,20 +174,24 @@ export default function Register() {
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Contact Number
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.contactNum}
-                onChange={(e) =>
-                  setFormData({ ...formData, contactNum: e.target.value })
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-              />
-            </div>
+            {formData.userType === "visitor" && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Contact Number
+                </label>
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  required
+                  placeholder="e.g. 09123456789"
+                  value={formData.contactNum}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactNum: e.target.value })
+                  }
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -173,6 +200,7 @@ export default function Register() {
               <input
                 type="email"
                 required
+                placeholder="e.g. juan@example.com"
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
@@ -189,6 +217,7 @@ export default function Register() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  placeholder="e.g. River!Cloud72"
                   value={formData.password}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
@@ -212,17 +241,18 @@ export default function Register() {
               {loading ? "Creating Account..." : "Register"}
             </button>
           </form>
-          
+
           {/* BOTTOM TEXT */}
           <div className="text-center text-gray-500 text-sm mt-8 font-medium flex flex-col gap-1">
             <p className="text-xs">
-              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos Norte
+              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos
+              Norte
             </p>
             <p className="text-xs mt-1">
-              <a 
+              <a
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
                 target="_blank"
-                rel="noopener noreferrer" 
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-mmsu-green transition-colors"
               >
                 Contact Developer

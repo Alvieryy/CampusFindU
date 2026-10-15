@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export default function Login() {
+export default function Login({ adminOnly = false }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -19,7 +18,7 @@ export default function Login() {
         title: "Session Expired",
         text: "You were automatically logged out due to 15 minutes of inactivity for your security.",
         icon: "info",
-        confirmButtonColor: "#0A4222"
+        confirmButtonColor: "#0A4222",
       });
       // Remove query param to prevent it from showing again on refresh
       window.history.replaceState({}, document.title, window.location.pathname);
@@ -31,28 +30,65 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword(
+        {
+          email,
+          password,
+        },
+      );
 
-    if (error) {
-      setError(error.message);
-    } else {
+      if (authError) {
+        setError(authError.message);
+        return;
+      }
+
+      if (adminOnly) {
+        const { data: profile, error: profileError } = await supabase
+          .from("Users")
+          .select("userType")
+          .eq("id", data.user.id)
+          .single();
+
+        if (profileError || profile?.userType !== "admin") {
+          await supabase.auth.signOut();
+          setError(
+            profileError
+              ? "Unable to verify administrator access. Please try again."
+              : "This login is for administrator accounts only.",
+          );
+          return;
+        }
+      }
+
       await supabase
         .from("Users")
         .update({ is_online: true })
         .eq("id", data.user.id);
       window.location.href = "/dashboard";
+    } catch {
+      setError("Unable to log in. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">
       {/* LEFT SIDE: FORM */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5 sm:p-8 lg:p-24 bg-white relative">
         <div className="w-full max-w-md">
+          <nav
+            aria-label="Account navigation"
+            className="flex justify-end mb-6"
+          >
+            <Link
+              to={adminOnly ? "/login" : "/admin/login"}
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-mmsu-green/20 px-4 py-2 text-sm font-bold text-mmsu-green hover:bg-green-50 focus-visible:outline-2 focus-visible:outline-mmsu-green transition"
+            >
+              {adminOnly ? "Back to user login" : "Log in as admin"}
+            </Link>
+          </nav>
           {/* LOGO HEADER */}
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
             <img
@@ -70,7 +106,9 @@ export default function Login() {
           </div>
 
           <p className="text-gray-500 mb-8 font-medium">
-            Please log in to continue.
+            {adminOnly
+              ? "Administrator login — sign in with your admin account."
+              : "Please log in to continue."}
           </p>
 
           {/* ERROR ALERT */}
@@ -131,26 +169,36 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading
+                ? "Logging in..."
+                : adminOnly
+                ? "Log in as admin"
+                : "Login"}
             </button>
           </form>
 
           {/* BOTTOM TEXT */}
           <div className="text-center text-gray-500 text-sm mt-10 font-medium flex flex-col gap-1">
-            <p>
-              Don't have an account?{" "}
-              <Link to="/register" className="text-mmsu-green font-bold hover:underline">
-                Register here
-              </Link>
-            </p>
+            {!adminOnly && (
+              <p>
+                Don't have an account?{" "}
+                <Link
+                  to="/register"
+                  className="text-mmsu-green font-bold hover:underline"
+                >
+                  Register here
+                </Link>
+              </p>
+            )}
             <p className="mt-4 text-xs">
-              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos Norte
+              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos
+              Norte
             </p>
             <p className="text-xs mt-1">
-              <a 
+              <a
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
                 target="_blank"
-                rel="noopener noreferrer" 
+                rel="noopener noreferrer"
                 className="text-gray-500 hover:text-mmsu-green transition-colors"
               >
                 Contact Developer

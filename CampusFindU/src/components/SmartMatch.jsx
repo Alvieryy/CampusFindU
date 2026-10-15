@@ -12,7 +12,9 @@ export default function SmartMatch({ currentItem, type }) {
         // If viewing a FOUND item, check all LOST items.
         const endpoint =
           type === "lost" ? "/api/found-items" : "/api/lost-items";
-        const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
+        const response = await axios.get(
+          `https://campusfindu-backend.onrender.com${endpoint}`,
+        );
         const oppositeItems = response.data;
 
         const scoredMatches = [];
@@ -91,48 +93,98 @@ export default function SmartMatch({ currentItem, type }) {
   if (matches.length === 0) return null;
 
   return (
-    <div className="mt-10 border-2 border-purple-200 bg-purple-50 rounded-xl p-8 shadow-sm">
-      <h3 className="text-2xl font-bold text-purple-800 mb-2">
-        🤖 Smart Match Suggestions
-      </h3>
-      <p className="text-purple-600 mb-6 font-medium">
-        Our algorithm found highly probable matches based on Category, Keywords,
-        Location, and Date!
-      </p>
-
-      <div className="flex flex-col gap-4">
-        {matches.map((match) => (
-          <div
-            key={match.item.id}
-            className="bg-white p-5 rounded-lg border border-purple-100 flex justify-between items-center shadow-sm"
+    <section
+      aria-labelledby="matching-items-heading"
+      className="mt-8 overflow-hidden rounded-xl border border-gray-200 bg-white"
+    >
+      <div className="border-b border-gray-200 px-4 py-5 sm:px-6">
+        <div className="flex items-center gap-3">
+          <h3
+            id="matching-items-heading"
+            className="text-lg font-semibold text-gray-900"
           >
-            <div>
-              <p className="font-bold text-gray-800 text-lg">
-                {match.item.title}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                📍 {match.item.location_name}
-              </p>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <span className="block text-3xl font-black text-purple-600">
-                  {match.score}%
-                </span>
-                <span className="text-xs text-purple-400 font-bold uppercase tracking-widest">
-                  Match
-                </span>
-              </div>
-              <Link
-                to={`/items/${type === "lost" ? "found" : "lost"}/${match.item.id}`}
-                className="bg-purple-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-purple-700 transition"
-              >
-                View Item
-              </Link>
-            </div>
-          </div>
-        ))}
+            Possible matches
+          </h3>
+          <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+            {matches.length}
+          </span>
+        </div>
+        <p className="mt-1.5 text-sm leading-6 text-gray-500">
+          Review these {type === "lost" ? "found" : "lost"} items and compare
+          the details before making a claim.
+        </p>
       </div>
-    </div>
+
+      <ul className="divide-y divide-gray-100">
+        {matches.map(({ item, score }) => (
+          <li key={item.id} className="px-4 py-5 sm:px-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="break-words text-base font-semibold text-gray-900">
+                  {item.title}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-500">
+                  {item.category && (
+                    <span className="break-words">{item.category}</span>
+                  )}
+                  <span className="inline-flex min-w-0 items-start gap-1.5">
+                    <svg
+                      aria-hidden="true"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="mt-0.5 shrink-0"
+                    >
+                      <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                      <circle cx="12" cy="10" r="2.5" />
+                    </svg>
+                    <span className="break-words">
+                      {item.location_name || "Location not specified"}
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 sm:justify-end sm:gap-5">
+                <span className="text-sm text-gray-500">
+                  Similarity{" "}
+                  <span className="ml-1 font-semibold tabular-nums text-gray-800">
+                    {score}/100
+                  </span>
+                </span>
+                <Link
+                  to={`/items/${type === "lost" ? "found" : "lost"}/${item.id}`}
+                  aria-label={`View details for ${item.title}`}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-mmsu-green transition hover:border-mmsu-green hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green"
+                >
+                  View details
+                  <svg
+                    aria-hidden="true"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M5 12h14m-6-6 6 6-6 6" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="border-t border-gray-100 bg-gray-50 px-4 py-3 text-xs leading-5 text-gray-500 sm:px-6">
+        Similarity is based on category, description, location and report date.
+        It does not confirm ownership.
+      </p>
+    </section>
   );
 }
