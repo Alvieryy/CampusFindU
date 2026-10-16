@@ -63,34 +63,69 @@ export default function GenerateReports() {
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      let endpoint = "";
-      if (reportType === "Lost Items Summary") endpoint = "/api/lost-items";
-      else if (reportType === "Found Items Summary") endpoint = "/api/found-items";
-      else if (reportType === "Claims Report") endpoint = "/api/claims";
+      let cleanData = [];
 
-      const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
-      let data = response.data;
+      if (reportType === "Claims Report") {
+        const [claimsRes, itemsRes] = await Promise.all([
+          axios.get("https://campusfindu-backend.onrender.com/api/claims"),
+          axios.get("https://campusfindu-backend.onrender.com/api/found-items"),
+        ]);
+        let data = claimsRes.data;
 
-      if (dateFrom) {
-        data = data.filter(item => new Date(item.created_at) >= new Date(dateFrom));
+        if (dateFrom) {
+          data = data.filter((item) => new Date(item.created_at) >= new Date(dateFrom));
+        }
+        if (dateTo) {
+          const to = new Date(dateTo);
+          to.setHours(23, 59, 59, 999);
+          data = data.filter((item) => new Date(item.created_at) <= to);
+        }
+
+        const itemsMap = new Map((itemsRes.data || []).map((i) => [i.id, i]));
+
+        cleanData = data.map((claim) => {
+          const foundItem = itemsMap.get(claim.found_item_id) || {};
+          return {
+            ID: claim.id,
+            Title: foundItem.title || claim.title || "N/A",
+            Category: foundItem.category || claim.category || "N/A",
+            Location: foundItem.location_name || claim.location_name || "N/A",
+            Status: claim.status,
+            Date: new Date(claim.created_at).toLocaleDateString(),
+          };
+        });
+      } else {
+        const endpoint =
+          reportType === "Lost Items Summary"
+            ? "/api/lost-items"
+            : "/api/found-items";
+
+        const response = await axios.get(
+          `https://campusfindu-backend.onrender.com${endpoint}`,
+        );
+        let data = response.data;
+
+        if (dateFrom) {
+          data = data.filter((item) => new Date(item.created_at) >= new Date(dateFrom));
+        }
+        if (dateTo) {
+          const to = new Date(dateTo);
+          to.setHours(23, 59, 59, 999);
+          data = data.filter((item) => new Date(item.created_at) <= to);
+        }
+
+        cleanData = data.map((item) => {
+          const { id, title, category, status, created_at, location_name } = item;
+          return {
+            ID: id,
+            Title: title || "N/A",
+            Category: category || "N/A",
+            Location: location_name || "N/A",
+            Status: status,
+            Date: new Date(created_at).toLocaleDateString(),
+          };
+        });
       }
-      if (dateTo) {
-        const to = new Date(dateTo);
-        to.setHours(23, 59, 59, 999);
-        data = data.filter(item => new Date(item.created_at) <= to);
-      }
-
-      const cleanData = data.map(item => {
-        const { id, title, category, status, created_at, location_name } = item;
-        return { 
-          ID: id, 
-          Title: title || "N/A", 
-          Category: category || "N/A", 
-          Location: location_name || "N/A", 
-          Status: status, 
-          Date: new Date(created_at).toLocaleDateString() 
-        };
-      });
 
       if (format === "Excel (CSV)") {
         generateCSV(cleanData, reportType.replace(/\s+/g, "_"));
