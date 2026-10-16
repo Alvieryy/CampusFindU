@@ -68,9 +68,6 @@ export default function Dashboard() {
       let foundItems = foundRes.data || [];
       let claims = claimsRes.data || [];
 
-      // ==========================================
-      // STUDENT DATA LOGIC
-      // ==========================================
       if (userData?.userType !== "admin") {
         lostItems = lostItems.filter((i) => i.user_id === session.user.id);
         foundItems = foundItems.filter((i) => i.user_id === session.user.id);
@@ -100,7 +97,6 @@ export default function Dashboard() {
         setRecentActivity(combined.slice(0, 10));
       }
 
-      // Math for Stats Cards
       const pendingClaims = claims.filter((c) => c.status === "pending").length;
       const resolvedLost = lostItems.filter(
         (i) => i.status === "resolved" || i.status === "claimed",
@@ -110,9 +106,6 @@ export default function Dashboard() {
       ).length;
       const totalResolved = resolvedLost + resolvedFound;
 
-      // ==========================================
-      // PHASE 12 MATH (Resolution Rate & Locations)
-      // ==========================================
       const totalItems = lostItems.length + foundItems.length;
       const resRate =
         totalItems > 0
@@ -143,9 +136,6 @@ export default function Dashboard() {
         resolutionRate: resRate,
       });
 
-      // ==========================================
-      // ADMIN CHARTS LOGIC
-      // ==========================================
       if (userData?.userType === "admin") {
         setPieData([
           { name: "Lost Items", value: lostItems.length },
@@ -188,14 +178,12 @@ export default function Dashboard() {
     setLoading(false);
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="p-8 text-gray-500 font-bold">Loading Dashboard...</div>
     );
+  }
 
-  // ==========================================
-  // ADMIN DASHBOARD VIEW
-  // ==========================================
   if (profile.userType === "admin") {
     return (
       <div className="font-sans max-w-7xl mx-auto pb-12">
@@ -338,9 +326,6 @@ export default function Dashboard() {
     );
   }
 
-  // ==========================================
-  // STUDENT DASHBOARD VIEW
-  // ==========================================
   return (
     <div className="font-sans max-w-6xl mx-auto pb-12">
       <h2 className="text-3xl font-black text-mmsu-green mb-2">
@@ -427,9 +412,6 @@ export default function Dashboard() {
   );
 }
 
-// ----------------------------------------
-// HELPER COMPONENTS
-// ----------------------------------------
 function StatCard({ title, value, color }) {
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-center items-center transition hover:shadow-md">

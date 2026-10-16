@@ -45,11 +45,13 @@ export default function SidebarLayout({ children }) {
     };
     document.addEventListener("keydown", handleKeyDown);
     mobile.addEventListener("change", handleResize);
+
+    const button = menuButtonRef.current;
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener("keydown", handleKeyDown);
       mobile.removeEventListener("change", handleResize);
-      if (mobile.matches) menuButtonRef.current?.focus();
+      if (mobile.matches) button?.focus();
     };
   }, [isMobileMenuOpen]);
 
@@ -75,7 +77,6 @@ export default function SidebarLayout({ children }) {
 
     const handleUnload = () => {
       if (currentUserId) {
-        // Best effort to set offline when closing tab
         supabase
           .from("Users")
           .update({ is_online: false })
@@ -87,7 +88,6 @@ export default function SidebarLayout({ children }) {
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
-  // Idle Auto-Logout Security Feature (15 Minutes)
   useEffect(() => {
     let idleTimer;
 
@@ -107,16 +107,14 @@ export default function SidebarLayout({ children }) {
 
     const resetTimer = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(handleAutoLogout, 15 * 60 * 1000); // 15 minutes in milliseconds
+      idleTimer = setTimeout(handleAutoLogout, 15 * 60 * 1000);
     };
 
-    // Reset timer on any user interaction
     window.addEventListener("mousemove", resetTimer);
     window.addEventListener("keydown", resetTimer);
     window.addEventListener("click", resetTimer);
     window.addEventListener("scroll", resetTimer);
 
-    // Start timer immediately
     resetTimer();
 
     return () => {
@@ -137,11 +135,13 @@ export default function SidebarLayout({ children }) {
         (n) => n.user_id === uid && n.is_read === false,
       );
       setUnreadCount(unread.length);
-    } catch (error) {}
+    } catch {
+      // ignore
+    }
   };
 
   const fetchUserProfile = async (uid) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("Users")
       .select("fullName, userType, avatarUrl")
       .eq("id", uid)
@@ -193,7 +193,6 @@ export default function SidebarLayout({ children }) {
         />
       )}
 
-      {/* CHANGED: bg-[#0a192f] is now bg-mmsu-green */}
       <aside
         id="main-sidebar"
         ref={sidebarRef}
@@ -213,7 +212,6 @@ export default function SidebarLayout({ children }) {
             onClick={() => setIsMobileMenuOpen(false)}
             className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white md:hidden"
           >
-            {/* Lucide X icon, inline SVG: no additional dependency. */}
             <svg
               aria-hidden="true"
               width="22"
@@ -237,7 +235,6 @@ export default function SidebarLayout({ children }) {
                 key={item.name}
                 to={item.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                // CHANGED: The active and hover states now use MMSU Gold and MMSU Light Green!
                 className={`flex min-h-11 items-center gap-3 p-3 text-sm md:text-base rounded-lg transition ${
                   isActive
                     ? "bg-mmsu-gold text-mmsu-green font-bold shadow-md"
@@ -276,7 +273,6 @@ export default function SidebarLayout({ children }) {
       </aside>
 
       <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
-        {/* CHANGED: bg-[#0a192f] is now bg-mmsu-green */}
         <header className="bg-mmsu-green text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-md z-10">
           <div className="flex items-center">
             <button

@@ -19,7 +19,6 @@ export default function ReportFoundItem() {
     status: "found",
   });
 
-  // New state to hold the actual file and a loading spinner state
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,33 +32,28 @@ export default function ReportFoundItem() {
     e.preventDefault();
     if (!userId) return alert("You must be logged in!");
 
-    setIsSubmitting(true); // Disable button so they don't click twice!
+    setIsSubmitting(true);
 
     try {
       let finalImageUrl = "";
 
-      // IF THE USER SELECTED A PHOTO, UPLOAD IT TO SUPABASE FIRST!
       if (imageFile) {
-        // Create a unique file name so images don't overwrite each other
         const fileExt = imageFile.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
-        const filePath = `${userId}/${fileName}`; // Save it in a folder named after the user
+        const filePath = `${userId}/${fileName}`;
 
-        // 1. Upload to the 'item-images' bucket
         const { error: uploadError } = await supabase.storage
           .from("Items")
           .upload(filePath, imageFile);
 
         if (uploadError) throw uploadError;
 
-        // 2. Get the public URL of the image we just uploaded
         const { data } = supabase.storage
-          .from("item-images")
+          .from("Items")
           .getPublicUrl(filePath);
         finalImageUrl = data.publicUrl;
       }
 
-      // NOW SEND EVERYTHING (INCLUDING THE IMAGE URL) TO OUR EXPRESS BACKEND
       await axios.post(
         "https://campusfindu-backend.onrender.com/api/found-items",
         {
@@ -74,7 +68,7 @@ export default function ReportFoundItem() {
         text: "Item reported successfully!",
         icon: "success",
         confirmButtonText: "Awesome",
-        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {
@@ -167,7 +161,6 @@ export default function ReportFoundItem() {
               />
             </div>
 
-            {/* NEW FILE UPLOAD INPUT */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 Image (Optional)

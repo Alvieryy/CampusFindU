@@ -4,55 +4,30 @@ import {
   Routes,
   Route,
   Navigate,
-  Link, // <-- Added Link import!
 } from "react-router-dom";
 import { supabase } from "./supabaseClient";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-
 import ReportLostItem from "./pages/ReportLostItem";
 import LostItemsList from "./pages/LostItemsList";
-
 import ReportFoundItem from "./pages/ReportFoundItem";
 import FoundItemsList from "./pages/FoundItemsList";
-
 import ItemDetail from "./pages/ItemDetail";
 import CampusMap from "./pages/CampusMap";
-
 import SubmitClaim from "./pages/SubmitClaim";
 import AdminClaims from "./pages/AdminClaims";
 import Notifications from "./pages/Notifications";
-import Navbar from "./components/Navbar";
-
 import SidebarLayout from "./components/SidebarLayout";
 import Dashboard from "./pages/Dashboard";
-
 import MyItems from "./pages/MyItems";
-
 import TrackStatus from "./pages/TrackStatus";
-
 import ManageUsers from "./pages/ManageUsers";
 import SystemSettings from "./pages/SystemSettings";
 import GenerateReports from "./pages/GenerateReports";
-
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword"; // <-- Added this
-
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
-
-// Helper component for the new Dashboard layout
-function DashboardCard({ title, desc, link, icon, colorClass }) {
-  return (
-    <Link
-      to={link}
-      className={`p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition duration-200 flex flex-col items-center text-center ${colorClass}`}
-    >
-      <span className="text-5xl mb-4">{icon}</span>
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-700 font-medium">{desc}</p>
-    </Link>
-  );
-}
+import AuthCallback from "./pages/AuthCallback";
 
 function ProtectedRoute({ children }) {
   const [session, setSession] = useState(null);
@@ -65,10 +40,12 @@ function ProtectedRoute({ children }) {
     });
   }, []);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="p-5 text-center text-gray-500 font-sans">Loading...</div>
     );
+  }
+
   if (!session) return <Navigate to="/login" />;
 
   return children;
@@ -84,7 +61,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        {/* Wrap all protected routes inside the SidebarLayout! */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/*"
           element={

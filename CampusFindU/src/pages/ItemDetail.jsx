@@ -15,7 +15,9 @@ export default function ItemDetail({ type }) {
       try {
         const endpoint =
           type === "lost" ? `/api/lost-items/${id}` : `/api/found-items/${id}`;
-        const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
+        const response = await axios.get(
+          `https://campusfindu-backend.onrender.com${endpoint}`,
+        );
         setItem(response.data);
       } catch (error) {
         console.error(error);
@@ -26,16 +28,17 @@ export default function ItemDetail({ type }) {
     fetchItemDetails();
   }, [id, type]);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="p-5 text-center text-gray-500">Loading details...</div>
     );
-  if (!item)
+  }
+  if (!item) {
     return <div className="p-5 text-center text-gray-500">Item not found!</div>;
+  }
 
   return (
     <div className="p-5 max-w-4xl mx-auto mt-10 font-sans">
-      {/* Back Button */}
       <button
         onClick={() => navigate(-1)}
         className="text-blue-600 hover:text-blue-800 text-sm mb-6 font-medium transition-colors"
@@ -43,15 +46,12 @@ export default function ItemDetail({ type }) {
         &larr; Back to Reports
       </button>
 
-      {/* Main White Card */}
       <div className="border border-gray-200 rounded-xl p-10 bg-white shadow-sm">
         <h2 className="mt-0 mb-10 text-2xl font-bold text-gray-800">
           Report Details
         </h2>
 
-        {/* 2-Column Grid Layout (Stacks on small screens) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* LEFT COLUMN */}
           <div className="flex flex-col gap-5">
             <DetailRow label="Report ID" value={item.id} />
             <DetailRow label="Item Name" value={item.title} />
@@ -62,28 +62,25 @@ export default function ItemDetail({ type }) {
             />
             <DetailRow label="Location" value={item.location_name} />
 
-            {/* Image Row */}
             <div className="flex flex-col sm:grid sm:grid-cols-[130px_1fr] items-start gap-1 sm:gap-0">
               <span className="text-gray-500 font-medium">Image</span>
               <div className="w-full">
                 {item.image_url ? (
                   <>
-                    {/* Desktop: Original preview image */}
                     <img
                       src={item.image_url}
                       alt={item.title}
                       className="hidden sm:block max-w-[150px] rounded-md border border-gray-200 shadow-sm"
                     />
-                    {/* Mobile: Clean compact button */}
                     <button
                       onClick={() => {
                         Swal.fire({
                           title: item.title,
                           imageUrl: item.image_url,
                           imageAlt: item.title,
-                          width: '90%',
-                          imageWidth: '100%',
-                          confirmButtonColor: '#0A4222'
+                          width: "90%",
+                          imageWidth: "100%",
+                          confirmButtonColor: "#0A4222",
                         });
                       }}
                       className="sm:hidden w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-mmsu-green font-bold rounded-lg border border-gray-200 transition shadow-sm"
@@ -99,7 +96,6 @@ export default function ItemDetail({ type }) {
               </div>
             </div>
 
-            {/* Status Pill Row */}
             <div className="grid grid-cols-[130px_1fr] items-center">
               <span className="text-gray-500 font-medium">Status</span>
               <div>
@@ -116,7 +112,6 @@ export default function ItemDetail({ type }) {
             </div>
           </div>
 
-          {/* RIGHT COLUMN */}
           <div className="flex flex-col gap-5">
             <DetailRow
               label="Type"
@@ -131,7 +126,6 @@ export default function ItemDetail({ type }) {
             </div>
           </div>
 
-          {/* Claim Button */}
           {type === "found" && item.status !== "claimed" && (
             <button
               onClick={() => navigate(`/claim/${item.id}`)}
@@ -143,13 +137,11 @@ export default function ItemDetail({ type }) {
         </div>
       </div>
 
-      {/* 🤖 Smart Match Component sits right below the White Card! */}
       <SmartMatch currentItem={item} type={type} />
     </div>
   );
 }
 
-// Helper component
 function DetailRow({ label, value }) {
   return (
     <div className="flex flex-col sm:grid sm:grid-cols-[130px_1fr] items-start gap-1 sm:gap-0">

@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polygon } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Red icon for LOST items
 const redIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
@@ -17,7 +16,6 @@ const redIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// Green icon for FOUND items
 const greenIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
@@ -29,28 +27,12 @@ const greenIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-// MMSU Border
-const mmsuPolygon = [
-  [18.0673, 120.537],
-  [18.0675, 120.54],
-  [18.058, 120.551],
-  [18.0535, 120.548],
-  [18.055, 120.533],
-  [18.062, 120.535],
-];
-
 export default function CampusMap() {
   const mmsuCenter = { lat: 18.0583, lng: 120.5446 };
-  const campusBounds = [
-    [18.045, 120.53],
-    [18.075, 120.56],
-  ];
-
   const [lostItems, setLostItems] = useState([]);
   const [foundItems, setFoundItems] = useState([]);
 
   useEffect(() => {
-    // Fetch ALL items from both APIs at the same time
     axios
       .get("https://campusfindu-backend.onrender.com/api/lost-items")
       .then((res) => setLostItems(res.data));
@@ -84,7 +66,6 @@ export default function CampusMap() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* Drop RED pins for Lost Items */}
           {lostItems.map(
             (item) =>
               item.latitude &&
@@ -103,7 +84,6 @@ export default function CampusMap() {
               ),
           )}
 
-          {/* Drop GREEN pins for Found Items */}
           {foundItems.map(
             (item) =>
               item.latitude &&

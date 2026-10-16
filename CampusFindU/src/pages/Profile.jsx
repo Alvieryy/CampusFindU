@@ -41,7 +41,6 @@ export default function Profile() {
     setLoading(false);
   };
 
-  // --- NEW: Profile Picture Upload Handler ---
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -50,9 +49,8 @@ export default function Profile() {
     const fileExt = file.name.split(".").pop();
     const fileName = `${profile.id}-${Math.random()}.${fileExt}`;
 
-    // 1. Upload image to Supabase 'avatars' bucket
     const { error: uploadError } = await supabase.storage
-      .from("Profile") // <--- Change this from 'avatars' to 'Profile'
+      .from("Profile")
       .upload(fileName, file);
 
     if (uploadError) {
@@ -61,14 +59,12 @@ export default function Profile() {
       return;
     }
 
-    // 2. Get the public URL of the uploaded image
     const {
       data: { publicUrl },
     } = supabase.storage
-      .from("Profile") // <--- Change this from 'avatars' to 'Profile'
+      .from("Profile")
       .getPublicUrl(fileName);
 
-    // 3. Save the new URL to the user's database row
     const { error: updateError } = await supabase
       .from("Users")
       .update({ avatarUrl: publicUrl })
@@ -116,12 +112,13 @@ export default function Profile() {
     setSaving(false);
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="text-center mt-10 font-bold text-gray-500">
         Loading profile...
       </div>
     );
+  }
 
   return (
     <div className="max-w-4xl mx-auto bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-200">
@@ -130,9 +127,7 @@ export default function Profile() {
       </h2>
 
       <div className="flex flex-col md:flex-row gap-10">
-        {/* Left Side: Avatar & Read-only info */}
         <div className="flex flex-col items-center md:w-1/3">
-          {/* AVATAR UPLOAD SECTION */}
           <div className="relative group w-32 h-32 mb-4 cursor-pointer">
             {profile?.avatarUrl ? (
               <img
@@ -146,7 +141,6 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Hover overlay to show "Upload" */}
             <label className="absolute inset-0 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200 cursor-pointer text-sm font-bold">
               {saving ? "Uploading..." : "Change Pic"}
               <input
@@ -176,7 +170,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Right Side: Edit Form */}
         <div className="md:w-2/3">
           <form onSubmit={handleSave} className="flex flex-col gap-5">
             <div>

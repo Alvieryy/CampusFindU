@@ -58,7 +58,7 @@ export default function SubmitClaim() {
         text: "Claim submitted.",
         icon: "success",
         confirmButtonText: "Awesome",
-        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {

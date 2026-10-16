@@ -11,9 +11,8 @@ export default function AdminClaims() {
       const response = await axios.get(
         "https://campusfindu-backend.onrender.com/api/claims",
       );
-      // Sort so pending claims show at the top!
       const sorted = response.data.sort((a, b) =>
-        a.status === "pending" ? -1 : 1,
+        a.status === "pending" ? -1 : b.status === "pending" ? 1 : 0,
       );
       setClaims(sorted);
     } catch (error) {
@@ -29,7 +28,6 @@ export default function AdminClaims() {
 
   const handleDecision = async (claim, decision) => {
     try {
-      // 1. Update the claim status to approved or rejected
       await axios.put(
         `https://campusfindu-backend.onrender.com/api/claims/${claim.id}`,
         {
@@ -37,7 +35,6 @@ export default function AdminClaims() {
         },
       );
 
-      // 2. If approved, we need to mark the actual Found Item as "claimed"
       if (decision === "approved") {
         await axios.put(
           `https://campusfindu-backend.onrender.com/api/found-items/${claim.found_item_id}`,
@@ -47,7 +44,6 @@ export default function AdminClaims() {
         );
       }
 
-      // 3. Send a notification to the user
       await axios.post(
         "https://campusfindu-backend.onrender.com/api/notifications",
         {
@@ -64,14 +60,15 @@ export default function AdminClaims() {
         decision === "approved" ? "success" : "info",
       );
 
-      fetchClaims(); // Refresh the list
-    } catch (error) {
+      fetchClaims();
+    } catch {
       Swal.fire("Error", "Something went wrong processing the claim.", "error");
     }
   };
 
-  if (loading)
+  if (loading) {
     return <div className="p-8 font-bold text-gray-500">Loading Claims...</div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">

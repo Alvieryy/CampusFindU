@@ -13,7 +13,6 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for errors in the URL hash (e.g. expired link)
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (hashParams.get("error")) {
       setError(hashParams.get("error_description") || "The password reset link is invalid or has expired.");
@@ -57,7 +56,6 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">
-      {/* LEFT SIDE: FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative overflow-y-auto">
         <div className="w-full max-w-md my-auto">
           <div className="mb-8">
@@ -68,7 +66,6 @@ export default function ResetPassword() {
               <span>&larr;</span> Back to Login
             </Link>
 
-            {/* LOGO HEADER */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
               <img
                 src="/logo.png"
@@ -149,7 +146,6 @@ export default function ResetPassword() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: BEAUTIFUL CAMPUS IMAGE */}
       <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
         <img
           src="/school.jpg"

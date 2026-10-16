@@ -18,7 +18,7 @@ export default function GenerateReports() {
       Object.values(obj).map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
     ).join("\n");
     const csvContent = `${headers}\n${rows}`;
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${filename}.csv`;
@@ -66,12 +66,11 @@ export default function GenerateReports() {
       let endpoint = "";
       if (reportType === "Lost Items Summary") endpoint = "/api/lost-items";
       else if (reportType === "Found Items Summary") endpoint = "/api/found-items";
-      else if (reportType === "Claims Report") endpoint = "/api/claims"; // assuming this exists
+      else if (reportType === "Claims Report") endpoint = "/api/claims";
 
       const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
       let data = response.data;
 
-      // Filter by date
       if (dateFrom) {
         data = data.filter(item => new Date(item.created_at) >= new Date(dateFrom));
       }
@@ -81,18 +80,23 @@ export default function GenerateReports() {
         data = data.filter(item => new Date(item.created_at) <= to);
       }
 
-      // Format data slightly to remove complex objects if any
       const cleanData = data.map(item => {
-        const { id, title, description, category, status, created_at, location_name } = item;
-        return { ID: id, Title: title || 'N/A', Category: category || 'N/A', Location: location_name || 'N/A', Status: status, Date: new Date(created_at).toLocaleDateString() };
+        const { id, title, category, status, created_at, location_name } = item;
+        return { 
+          ID: id, 
+          Title: title || "N/A", 
+          Category: category || "N/A", 
+          Location: location_name || "N/A", 
+          Status: status, 
+          Date: new Date(created_at).toLocaleDateString() 
+        };
       });
 
       if (format === "Excel (CSV)") {
-        generateCSV(cleanData, reportType.replace(/\s+/g, '_'));
+        generateCSV(cleanData, reportType.replace(/\s+/g, "_"));
       } else {
         generatePDF(cleanData, reportType);
       }
-
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "Failed to generate report. Check network.", "error");

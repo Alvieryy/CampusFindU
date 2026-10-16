@@ -10,7 +10,6 @@ export default function LostItemsList() {
 
   const fetchData = async () => {
     try {
-      // 1. Check if user is admin
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -23,11 +22,9 @@ export default function LostItemsList() {
         if (userData?.userType === "admin") setIsAdmin(true);
       }
 
-      // 2. Fetch items
       const response = await axios.get(
         "https://campusfindu-backend.onrender.com/api/lost-items",
       );
-      // Sort newest first
       setItems(
         response.data.sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at),
@@ -60,8 +57,8 @@ export default function LostItemsList() {
           `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
         );
         Swal.fire("Deleted!", "The report has been removed.", "success");
-        fetchData(); // refresh list
-      } catch (err) {
+        fetchData();
+      } catch {
         Swal.fire("Error", "Failed to delete report. Check backend.", "error");
       }
     }
@@ -74,16 +71,17 @@ export default function LostItemsList() {
         { status: "resolved" },
       );
       Swal.fire("Resolved!", "Item marked as resolved.", "success");
-      fetchData(); // refresh list
-    } catch (err) {
+      fetchData();
+    } catch {
       Swal.fire("Error", "Failed to update status.", "error");
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="p-8 font-bold text-gray-500">Loading Lost Items...</div>
     );
+  }
 
   return (
     <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-8">
@@ -104,22 +102,20 @@ export default function LostItemsList() {
           >
             {item.image_url ? (
               <>
-                {/* Desktop View: Original full image */}
                 <img
                   src={item.image_url}
                   alt={item.title}
                   className="hidden md:block w-full h-48 object-cover"
                 />
-                {/* Mobile View: Compact button */}
                 <button 
                   onClick={() => {
                     Swal.fire({
                       title: item.title,
                       imageUrl: item.image_url,
                       imageAlt: item.title,
-                      width: '90%',
-                      imageWidth: '100%',
-                      confirmButtonColor: '#0A4222'
+                      width: "90%",
+                      imageWidth: "100%",
+                      confirmButtonColor: "#0A4222",
                     });
                   }}
                   className="md:hidden w-full h-12 bg-gray-100 hover:bg-gray-200 text-mmsu-green font-bold flex items-center justify-center transition border-b border-gray-200"
@@ -158,7 +154,6 @@ export default function LostItemsList() {
                 <p className="flex items-center gap-1">🏷️ {item.category}</p>
               </div>
 
-              {/* ADMIN CONTROLS */}
               {isAdmin && (
                 <div className="mt-5 pt-4 border-t border-gray-100 flex gap-2">
                   <button

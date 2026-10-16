@@ -8,32 +8,25 @@ export default function SmartMatch({ currentItem, type }) {
   useEffect(() => {
     const fetchAndCompare = async () => {
       try {
-        // If viewing a LOST item, check all FOUND items.
-        // If viewing a FOUND item, check all LOST items.
         const endpoint =
           type === "lost" ? "/api/found-items" : "/api/lost-items";
         const response = await axios.get(
           `https://campusfindu-backend.onrender.com${endpoint}`,
         );
         const oppositeItems = response.data;
-
         const scoredMatches = [];
 
-        // Run the algorithm against every item in the database
         for (const target of oppositeItems) {
-          // Skip items that are already resolved/claimed
-          if (target.status === "claimed" || target.status === "recovered")
+          if (target.status === "claimed" || target.status === "recovered") {
             continue;
+          }
 
           let score = 0;
           const lost = type === "lost" ? currentItem : target;
           const found = type === "found" ? currentItem : target;
 
-          // STEP 1: Compare Category (30%)
           if (lost.category === found.category) score += 30;
 
-          // STEP 2: Compare Keywords (30%)
-          // We break the title and description into an array of words
           const lostWords =
             (lost.title + " " + lost.description).toLowerCase().match(/\w+/g) ||
             [];
@@ -44,41 +37,34 @@ export default function SmartMatch({ currentItem, type }) {
 
           let matchCount = 0;
           lostWords.forEach((word) => {
-            // Only compare words longer than 3 letters to ignore "the", "and", etc.
             if (word.length > 3 && foundWords.includes(word)) matchCount++;
           });
           if (matchCount === 1) score += 15;
           if (matchCount >= 2) score += 30;
 
-          // STEP 3: Compare Location (25%)
           if (lost.location_name && found.location_name) {
             const locLost = lost.location_name.toLowerCase();
             const locFound = found.location_name.toLowerCase();
-            // Give points if the locations are the same or share names (e.g. "Library")
             if (locLost.includes(locFound) || locFound.includes(locLost)) {
               score += 25;
             }
           }
 
-          // STEP 4: Compare Dates (15%)
           const lostDate = new Date(lost.created_at);
           const foundDate = new Date(found.created_at);
-          // Find the difference in days
           const diffDays = (foundDate - lostDate) / (1000 * 60 * 60 * 24);
 
           if (diffDays >= 0 && diffDays <= 7) {
-            score += 15; // Found within a week of losing it!
+            score += 15;
           } else if (diffDays > 7 && diffDays <= 30) {
-            score += 5; // Found within a month
+            score += 5;
           }
 
-          // STEP 6: If score >= 70%, add it to matches!
           if (score >= 70) {
             scoredMatches.push({ item: target, score });
           }
         }
 
-        // Sort by the highest score first
         scoredMatches.sort((a, b) => b.score - a.score);
         setMatches(scoredMatches);
       } catch (error) {
@@ -89,7 +75,6 @@ export default function SmartMatch({ currentItem, type }) {
     fetchAndCompare();
   }, [currentItem, type]);
 
-  // If no matches over 70% were found, don't show the box at all
   if (matches.length === 0) return null;
 
   return (

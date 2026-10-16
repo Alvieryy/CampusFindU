@@ -4,9 +4,10 @@ const express = require('express');
 const cors = require('cors');
 
 const testRoutes = require('./routes/testRoutes');
-
-
-
+const itemsRoutes = require('./routes/itemsRoutes');
+const claimsRoutes = require('./routes/claimsRoutes');
+const notificationsRoutes = require('./routes/notificationsRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
@@ -20,21 +21,13 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/test', testRoutes);
+app.use('/api', itemsRoutes);
+app.use('/api/claims', claimsRoutes);
+app.use('/api/notifications', notificationsRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-
-const itemsRoutes = require('./routes/itemsRoutes');
-app.use('/api', itemsRoutes);
-
-const claimsRoutes = require('./routes/claimsRoutes');
-app.use('/api/claims', claimsRoutes);
-
-const notificationsRoutes = require('./routes/notificationsRoutes');
-app.use('/api/notifications', notificationsRoutes);
-
-const userRoutes = require('./routes/userRoutes');
-app.use('/api/users', userRoutes);

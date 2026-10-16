@@ -4,12 +4,10 @@ import { supabase } from "../supabaseClient";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
-  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        setUserId(session.user.id);
         fetchNotifications(session.user.id);
       }
     });
@@ -20,7 +18,6 @@ export default function Notifications() {
       const response = await axios.get(
         "https://campusfindu-backend.onrender.com/api/notifications",
       );
-      // Only show notifications that belong to the logged-in user!
       const userNotifs = response.data.filter((n) => n.user_id === uid);
       setNotifications(userNotifs);
     } catch (error) {
@@ -33,7 +30,6 @@ export default function Notifications() {
       await axios.put(
         `https://campusfindu-backend.onrender.com/api/notifications/${id}/read`,
       );
-      // Update the screen instantly
       setNotifications(
         notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
       );

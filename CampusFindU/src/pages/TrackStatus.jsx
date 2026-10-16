@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 
 export default function TrackStatus() {
-  const { type, id } = useParams(); // type can be 'lost' or 'found'
+  const { type, id } = useParams();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -12,7 +12,9 @@ export default function TrackStatus() {
       try {
         const endpoint =
           type === "lost" ? `/api/lost-items/${id}` : `/api/found-items/${id}`;
-        const response = await axios.get(`https://campusfindu-backend.onrender.com${endpoint}`);
+        const response = await axios.get(
+          `https://campusfindu-backend.onrender.com${endpoint}`,
+        );
         setItem(response.data);
       } catch (error) {
         console.error(error);
@@ -23,16 +25,16 @@ export default function TrackStatus() {
     fetchItem();
   }, [id, type]);
 
-  if (loading)
+  if (loading) {
     return <div className="p-8 text-gray-500 font-sans">Loading status...</div>;
-  if (!item)
+  }
+  if (!item) {
     return <div className="p-8 text-red-500 font-sans">Item not found.</div>;
+  }
 
-  // Determine which timeline steps are active based on the database status
   const s = item.status;
-  const step1 = true; // Always reported
-  const step2 = s !== "lost" && s !== "found"; // Under review if it is 'pending'
-  const step3 = s === "claimed" || s === "approved"; // Finished if it is 'claimed'
+  const step2 = s !== "lost" && s !== "found";
+  const step3 = s === "claimed" || s === "approved";
 
   return (
     <div className="max-w-4xl mx-auto font-sans mt-4">
@@ -44,7 +46,6 @@ export default function TrackStatus() {
       </Link>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {/* TOP CARD DETAILS */}
         <div className="p-8 border-b border-gray-100 flex flex-col md:flex-row gap-8">
           <div className="w-48 h-48 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 shadow-sm">
             {item.image_url ? (
@@ -90,14 +91,12 @@ export default function TrackStatus() {
           </div>
         </div>
 
-        {/* TIMELINE SECTION */}
         <div className="p-10 bg-gray-50">
           <h3 className="font-bold text-blue-900 text-lg mb-8">
             Status Timeline
           </h3>
 
           <div className="relative border-l-2 border-gray-200 ml-4 space-y-12">
-            {/* STEP 1: Reported */}
             <div className="relative pl-10">
               <div className="absolute -left-[11px] top-1 w-5 h-5 bg-green-500 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center">
                 <span className="text-white text-[10px]">✓</span>
@@ -115,7 +114,6 @@ export default function TrackStatus() {
               </div>
             </div>
 
-            {/* STEP 2: Under Review */}
             <div className="relative pl-10">
               <div
                 className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center transition-colors ${step2 ? "bg-blue-500" : "bg-gray-300"}`}
@@ -134,7 +132,6 @@ export default function TrackStatus() {
               </div>
             </div>
 
-            {/* STEP 3: Released */}
             <div className="relative pl-10">
               <div
                 className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center transition-colors ${step3 ? "bg-green-500" : "bg-gray-300"}`}
@@ -154,7 +151,6 @@ export default function TrackStatus() {
             </div>
           </div>
 
-          {/* NOTIFICATION BANNER */}
           <div className="mt-12 bg-blue-50 text-blue-800 p-4 rounded-lg flex items-center gap-3 text-sm font-medium border border-blue-100">
             You will be notified in the Notifications tab once your claim is
             verified.
@@ -166,18 +162,20 @@ export default function TrackStatus() {
 }
 
 function StatusBadge({ status }) {
-  if (status === "pending" || status === "lost")
+  if (status === "pending" || status === "lost") {
     return (
       <span className="text-orange-600 bg-orange-50 px-3 py-1 rounded-full text-xs font-bold border border-orange-200 capitalize tracking-wide">
         {status}
       </span>
     );
-  if (status === "claimed" || status === "approved" || status === "found")
+  }
+  if (status === "claimed" || status === "approved" || status === "found") {
     return (
       <span className="text-green-600 bg-green-50 px-3 py-1 rounded-full text-xs font-bold border border-green-200 capitalize tracking-wide">
         {status}
       </span>
     );
+  }
   return (
     <span className="text-red-600 bg-red-50 px-3 py-1 rounded-full text-xs font-bold border border-red-200 capitalize tracking-wide">
       {status}

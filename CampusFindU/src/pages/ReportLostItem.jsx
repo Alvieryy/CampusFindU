@@ -66,7 +66,7 @@ export default function ReportLostItem() {
         text: "Lost item reported successfully!",
         icon: "success",
         confirmButtonText: "Awesome",
-        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {
@@ -76,7 +76,7 @@ export default function ReportLostItem() {
         text: "Error reporting lost item.",
         icon: "error",
         confirmButtonText: "Awesome",
-        confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+        confirmButtonColor: "#2563eb",
       });
     } finally {
       setIsSubmitting(false);

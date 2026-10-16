@@ -50,18 +50,19 @@ export default function Register() {
             formData.userType === "faculty" ? formData.employeeId : null,
           contactNum:
             formData.userType === "visitor" ? formData.contactNum.trim() : "",
-          email: formData.email, // <--- ADD THIS LINE HERE!
+          email: formData.email,
         },
       ]);
 
-      if (dbError) setError(dbError.message);
-      else {
+      if (dbError) {
+        setError(dbError.message);
+      } else {
         Swal.fire({
           title: "Success!",
           text: "Registration successful! You can now log in.",
           icon: "success",
           confirmButtonText: "Awesome",
-          confirmButtonColor: "#2563eb", // This makes the button match your CampusFindU Blue!
+          confirmButtonColor: "#2563eb",
         });
         navigate("/login");
       }
@@ -71,7 +72,6 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">
-      {/* LEFT SIDE: FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5 sm:p-8 lg:p-12 bg-white relative overflow-y-auto">
         <div className="w-full max-w-md my-auto">
           <div className="mb-8">
@@ -242,7 +242,6 @@ export default function Register() {
             </button>
           </form>
 
-          {/* BOTTOM TEXT */}
           <div className="text-center text-gray-500 text-sm mt-8 font-medium flex flex-col gap-1">
             <p className="text-xs">
               &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos
@@ -262,7 +261,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* RIGHT SIDE: YOUR SCHOOL IMAGE */}
       <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
         <img
           src="/school.jpg"

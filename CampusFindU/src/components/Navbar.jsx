@@ -9,11 +9,10 @@ export default function Navbar() {
   const fetchUnreadCount = async (uid) => {
     try {
       const response = await axios.get(
-        "https://campusfindu-backend.onrender.com/api/notifications",
+        "https://campusfindu-backend.onrender.com/api/notifications"
       );
-      // Count how many notifications belong to this user AND are unread
       const unread = response.data.filter(
-        (n) => n.user_id === uid && n.is_read === false,
+        (n) => n.user_id === uid && n.is_read === false
       );
       setUnreadCount(unread.length);
     } catch (error) {
@@ -22,12 +21,10 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    // Check immediately when page loads
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) fetchUnreadCount(session.user.id);
     });
 
-    // Check again every 10 seconds in the background
     const interval = setInterval(() => {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) fetchUnreadCount(session.user.id);
@@ -48,14 +45,13 @@ export default function Navbar() {
           <Link to="/lost-items" className="hover:text-blue-200 transition">
             Lost Items
           </Link>
-          <Link to="found-items" className="hover:text-blue-200 transition">
+          <Link to="/found-items" className="hover:text-blue-200 transition">
             Found Items
           </Link>
           <Link to="/campus-map" className="hover:text-blue-200 transition">
             Map
           </Link>
 
-          {/* THE NOTIFICATION BELL WITH BADGE */}
           <Link
             to="/notifications"
             className="relative hover:opacity-80 transition text-xl"

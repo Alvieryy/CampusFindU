@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function FoundItemsList() {
   const [items, setItems] = useState([]);
@@ -10,7 +11,6 @@ export default function FoundItemsList() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        // Fetching from the /found-items API!
         const response = await axios.get(
           "https://campusfindu-backend.onrender.com/api/found-items",
         );
@@ -60,22 +60,20 @@ export default function FoundItemsList() {
             >
               {item.image_url ? (
                 <>
-                  {/* Desktop View: Original full image */}
                   <img
                     src={item.image_url}
                     alt={item.title}
                     className="hidden md:block w-full h-48 object-cover"
                   />
-                  {/* Mobile View: Compact button */}
                   <button 
                     onClick={() => {
                       Swal.fire({
                         title: item.title,
                         imageUrl: item.image_url,
                         imageAlt: item.title,
-                        width: '90%',
-                        imageWidth: '100%',
-                        confirmButtonColor: '#0A4222'
+                        width: "90%",
+                        imageWidth: "100%",
+                        confirmButtonColor: "#0A4222",
                       });
                     }}
                     className="md:hidden w-full h-12 bg-green-50 hover:bg-green-100 text-green-700 font-bold flex items-center justify-center transition border-b border-green-100"

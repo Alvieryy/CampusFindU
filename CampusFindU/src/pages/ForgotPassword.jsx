@@ -34,7 +34,6 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50">
-      {/* LEFT SIDE: FORM */}
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative overflow-y-auto">
         <div className="w-full max-w-md my-auto">
           <div className="mb-8">
@@ -45,7 +44,6 @@ export default function ForgotPassword() {
               <span>&larr;</span> Back to Login
             </Link>
 
-            {/* LOGO HEADER */}
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
               <img
                 src="/logo.png"
@@ -62,7 +60,8 @@ export default function ForgotPassword() {
             </div>
 
             <p className="text-gray-500 font-medium mt-4">
-              Enter your email address and we'll send you a link to reset your password.
+              Enter your email address and we'll send you a link to reset your
+              password.
             </p>
           </div>
 
@@ -99,17 +98,19 @@ export default function ForgotPassword() {
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
           </form>
-          
+
           <p className="mt-8 text-sm font-medium text-gray-500 text-center">
             Remember your password?{" "}
-            <Link to="/login" className="text-mmsu-green font-bold hover:underline">
+            <Link
+              to="/login"
+              className="text-mmsu-green font-bold hover:underline"
+            >
               Login
             </Link>
           </p>
         </div>
       </div>
 
-      {/* RIGHT SIDE: BEAUTIFUL CAMPUS IMAGE */}
       <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
         <img
           src="/school.jpg"

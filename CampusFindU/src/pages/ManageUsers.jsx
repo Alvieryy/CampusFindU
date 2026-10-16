@@ -37,7 +37,6 @@ export default function ManageUsers() {
   };
 
   const toggleUserStatus = async (userId, currentStatus) => {
-    // Assuming you have a 'status' column. If not, this is a placeholder.
     const newStatus = currentStatus === "active" ? "disabled" : "active";
     const { error } = await supabase
       .from("Users")
