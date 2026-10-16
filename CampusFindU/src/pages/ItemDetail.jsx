@@ -131,7 +131,7 @@ export default function ItemDetail({ type }) {
               onClick={() => navigate(`/claim/${item.id}`)}
               className="mt-8 w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-md md:col-span-2"
             >
-              Claim This Item ✋
+              Claim This Item
             </button>
           )}
         </div>

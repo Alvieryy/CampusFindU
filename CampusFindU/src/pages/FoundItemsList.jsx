@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { MapPin, Tag } from "lucide-react";
 
 export default function FoundItemsList() {
   const [items, setItems] = useState([]);
@@ -108,8 +109,14 @@ export default function FoundItemsList() {
                 </p>
 
                 <div className="mt-auto text-xs text-gray-500 flex flex-col gap-1.5 font-medium mb-4">
-                  <p className="flex items-center gap-1">📍 {item.location_name}</p>
-                  <p className="flex items-center gap-1">🏷️ {item.category}</p>
+                  <p className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span>{item.location_name}</span>
+                  </p>
+                  <p className="flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span>{item.category}</span>
+                  </p>
                 </div>
 
                 <Link

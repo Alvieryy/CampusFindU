@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 import L from "leaflet";
@@ -34,12 +29,17 @@ export default function LocationPickerMap({ onLocationSelect }) {
   const [position, setPosition] = useState(mmsuCenter);
 
   return (
-    <div style={{ height: "400px", width: "100%", maxWidth: "800px", marginBottom: "15px" }}>
+    <div style={{ width: "100%", minWidth: 0, marginBottom: "20px" }}>
       <MapContainer
         center={mmsuCenter}
         zoom={15}
         minZoom={10}
-        style={{ height: "100%", width: "100%", borderRadius: "8px" }}
+        style={{
+          height: "clamp(300px, 55dvh, 520px)",
+          width: "100%",
+          borderRadius: "8px",
+          isolation: "isolate",
+        }}
       >
         <TileLayer
           attribution="&copy; OpenStreetMap"

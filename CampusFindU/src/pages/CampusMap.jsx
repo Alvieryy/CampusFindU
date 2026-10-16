@@ -36,23 +36,25 @@ export default function CampusMap() {
     axios
       .get("https://campusfindu-backend.onrender.com/api/lost-items")
       .then((res) => setLostItems(res.data));
+
     axios
       .get("https://campusfindu-backend.onrender.com/api/found-items")
       .then((res) => setFoundItems(res.data));
   }, []);
 
   return (
-    <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
+    <div style={{ width: "100%", minWidth: 0 }}>
       <h2>MMSU Campus Map</h2>
       <p style={{ fontWeight: "bold" }}>🔴 Lost Items | 🟢 Found Items</p>
 
       <div
         style={{
-          height: "600px",
+          height: "max(360px, calc(100dvh - 220px))",
           width: "100%",
           borderRadius: "8px",
           overflow: "hidden",
-          border: "2px solid #ccc",
+          border: "1px solid #d1d5db",
+          isolation: "isolate",
         }}
       >
         <MapContainer
@@ -76,8 +78,10 @@ export default function CampusMap() {
                   icon={redIcon}
                 >
                   <Popup>
-                    <strong>{item.title}</strong> <br />
-                    <span style={{ color: "red" }}>Status: Lost</span> <br />
+                    <strong>{item.title}</strong>
+                    <br />
+                    <span style={{ color: "red" }}>Status: Lost</span>
+                    <br />
                     <Link to={`/items/lost/${item.id}`}>View Details</Link>
                   </Popup>
                 </Marker>
@@ -94,8 +98,10 @@ export default function CampusMap() {
                   icon={greenIcon}
                 >
                   <Popup>
-                    <strong>{item.title}</strong> <br />
-                    <span style={{ color: "green" }}>Status: Found</span> <br />
+                    <strong>{item.title}</strong>
+                    <br />
+                    <span style={{ color: "green" }}>Status: Found</span>
+                    <br />
                     <Link to={`/items/found/${item.id}`}>View Details</Link>
                   </Popup>
                 </Marker>
