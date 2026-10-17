@@ -57,7 +57,7 @@ export default function SubmitClaim() {
         title: "Success!",
         text: "Claim submitted.",
         icon: "success",
-        confirmButtonText: "Awesome",
+        confirmButtonText: "Okay",
         confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");

@@ -57,12 +57,12 @@ export default function Register() {
       if (dbError) {
         setError(dbError.message);
       } else {
-        Swal.fire({
-          title: "Success!",
-          text: "Registration successful! You can now log in.",
+        await Swal.fire({
+          title: "Registration Successful!",
+          text: "Please check your email (including your spam or junk folder) for a confirmation link to verify your account before logging in.",
           icon: "success",
-          confirmButtonText: "Awesome",
-          confirmButtonColor: "#2563eb",
+          confirmButtonText: "Got it, Go to Login",
+          confirmButtonColor: "#0A4222",
         });
         navigate("/login");
       }

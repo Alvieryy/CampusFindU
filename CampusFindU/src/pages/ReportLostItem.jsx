@@ -65,7 +65,7 @@ export default function ReportLostItem() {
         title: "Success!",
         text: "Lost item reported successfully!",
         icon: "success",
-        confirmButtonText: "Awesome",
+        confirmButtonText: "Okay",
         confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
@@ -75,7 +75,7 @@ export default function ReportLostItem() {
         title: "Error!",
         text: "Error reporting lost item.",
         icon: "error",
-        confirmButtonText: "Awesome",
+        confirmButtonText: "Okay",
         confirmButtonColor: "#2563eb",
       });
     } finally {

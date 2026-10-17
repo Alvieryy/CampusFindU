@@ -67,7 +67,7 @@ export default function ReportFoundItem() {
         title: "Success!",
         text: "Item reported successfully!",
         icon: "success",
-        confirmButtonText: "Awesome",
+        confirmButtonText: "Okay",
         confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
