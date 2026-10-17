@@ -61,7 +61,7 @@ export default function Register() {
           title: "Registration Successful!",
           text: "Please check your email (including your spam or junk folder) for a confirmation link to verify your account before logging in.",
           icon: "success",
-          confirmButtonText: "Got it, Go to Login",
+          confirmButtonText: "Okay",
           confirmButtonColor: "#0A4222",
         });
         navigate("/login");
