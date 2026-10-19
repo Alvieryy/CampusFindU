@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { MapPin, Tag } from "lucide-react";
 
 export default function FoundItemsList() {
   const [items, setItems] = useState([]);
@@ -66,7 +65,7 @@ export default function FoundItemsList() {
                     alt={item.title}
                     className="hidden md:block w-full h-48 object-cover"
                   />
-                  <button 
+                  <button
                     onClick={() => {
                       Swal.fire({
                         title: item.title,
@@ -99,7 +98,11 @@ export default function FoundItemsList() {
                     {item.title}
                   </h3>
                   <span
-                    className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${item.status === "claimed" ? "bg-purple-100 text-purple-700" : "bg-green-100 text-green-700"}`}
+                    className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                      item.status === "claimed"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
                   >
                     {item.status || "found"}
                   </span>
@@ -109,14 +112,10 @@ export default function FoundItemsList() {
                 </p>
 
                 <div className="mt-auto text-xs text-gray-500 flex flex-col gap-1.5 font-medium mb-4">
-                  <p className="flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>{item.location_name}</span>
+                  <p className="flex items-center gap-1">
+                    📍 {item.location_name}
                   </p>
-                  <p className="flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                    <span>{item.category}</span>
-                  </p>
+                  <p className="flex items-center gap-1"> {item.category}</p>
                 </div>
 
                 <Link

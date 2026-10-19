@@ -3,6 +3,7 @@
     "@capacitor/android": "^8.5.3",
     "@capacitor/core": "^8.5.3",
     "@supabase/supabase-js": "^2.112.4",
+    "@vercel/speed-insights": "^2.0.0",
     "axios": "^1.19.0",
     "leaflet": "^1.9.4",
     "react-leaflet": "^5.0.0",

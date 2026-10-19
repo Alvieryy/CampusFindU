@@ -3,6 +3,23 @@ import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
+const colleges = [
+  ["CCIS", "College of Computing and Information Sciences"],
+  ["COE", "College of Engineering"],
+  ["CAS", "College of Arts and Sciences"],
+  ["CAFSD", "College of Agriculture Food and Sustainable Development"],
+  ["CASAT", "College of Aquatic Science and Applied Technology"],
+  ["CBEA", "College of Business, Economics and Accountancy"],
+  ["CHS", "College of Health Sciences"],
+  ["CIT", "College of Industrial Technology"],
+  ["CTE", "College of Teacher Education"],
+  ["COM", "College of Medicine"],
+  ["COL", "College of Law"],
+  ["COD", "College of Dentistry"],
+  ["CVM", "College of Veterinary Medicine"],
+  ["GS", "College of Graduate School"],
+];
+
 export default function Register() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -10,64 +27,123 @@ export default function Register() {
     password: "",
     userType: "student",
     studId: "",
+    employeeId: "",
     contactNum: "",
+    college: "",
   });
+
+  const [applySCAdmin, setApplySCAdmin] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+
+  const inputClass =
+    "w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50";
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleRoleChange = (e) => {
+    const userType = e.target.value;
+
+    setFormData((previous) => ({
+      ...previous,
+      userType,
+    }));
+
+    if (userType !== "student") {
+      setApplySCAdmin(false);
+    }
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (
-      !["student", "faculty", "staff", "visitor"].includes(formData.userType)
-    ) {
+
+    if (loading) return;
+
+    setError("");
+
+    const allowedRoles = ["student", "faculty", "staff", "visitor"];
+
+    if (!allowedRoles.includes(formData.userType)) {
       setError("Please select a valid registration role.");
       return;
     }
-    setLoading(true);
-    setError("");
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-    });
-
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
+    if (!formData.fullName.trim()) {
+      setError("Please enter your full name.");
       return;
     }
 
-    if (authData?.user) {
-      const { error: dbError } = await supabase.from("Users").upsert([
-        {
-          id: authData.user.id,
-          fullName: formData.fullName,
-          userType: formData.userType,
-          studId: formData.userType === "student" ? formData.studId : null,
-          employeeId:
-            formData.userType === "faculty" ? formData.employeeId : null,
-          contactNum:
-            formData.userType === "visitor" ? formData.contactNum.trim() : "",
-          email: formData.email,
-        },
-      ]);
+    const isStudent = formData.userType === "student";
+    const isEmployee = ["faculty", "staff"].includes(formData.userType);
 
-      if (dbError) {
-        setError(dbError.message);
-      } else {
-        await Swal.fire({
-          title: "Registration Successful!",
-          text: "Please check your email (including your spam or junk folder) for a confirmation link to verify your account before logging in.",
-          icon: "success",
-          confirmButtonText: "Okay",
-          confirmButtonColor: "#0A4222",
-        });
-        navigate("/login");
-      }
+    if (isStudent && !colleges.some(([code]) => code === formData.college)) {
+      setError("Please select your college.");
+      return;
     }
-    setLoading(false);
+
+    if (isStudent && !formData.studId.trim()) {
+      setError("Please enter your student ID.");
+      return;
+    }
+
+    if (isEmployee && !formData.employeeId.trim()) {
+      setError("Please enter your employee ID.");
+      return;
+    }
+
+    if (formData.userType === "visitor" && !formData.contactNum.trim()) {
+      setError("Please enter your contact number.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error: authError } = await supabase.auth.signUp({
+        email: formData.email.trim(),
+        password: formData.password,
+        options: {
+          data: {
+            fullName: formData.fullName.trim(),
+            userType: formData.userType,
+            studId: isStudent ? formData.studId.trim() : null,
+            employeeId: isEmployee ? formData.employeeId.trim() : null,
+            contactNum: formData.contactNum.trim(),
+            college: isStudent ? formData.college : null,
+            apply_sc_admin: isStudent && applySCAdmin,
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      await Swal.fire({
+        title: "Check your email",
+        text:
+          isStudent && applySCAdmin
+            ? "If this is a new registration, check your email for a confirmation link. Your SC admin application requires main-admin approval. Your account remains a student while pending."
+            : "If this is a new registration, check your email for a confirmation link. Check your spam or junk folder too.",
+        icon: "success",
+        confirmButtonText: "Okay",
+        confirmButtonColor: "#0A4222",
+      });
+
+      navigate("/login");
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -83,8 +159,10 @@ export default function Register() {
                 to="/login"
                 className="inline-flex min-h-11 items-center gap-2 text-gray-500 font-bold hover:text-mmsu-green focus-visible:outline-2 focus-visible:outline-mmsu-green rounded-lg"
               >
-                <span aria-hidden="true">&larr;</span> Back to Login
+                <span aria-hidden="true">&larr;</span>
+                Back to Login
               </Link>
+
               <Link
                 to="/admin/login"
                 className="ml-auto inline-flex min-h-11 items-center justify-center rounded-lg border border-mmsu-green/20 px-4 py-2 font-bold text-mmsu-green hover:bg-green-50 focus-visible:outline-2 focus-visible:outline-mmsu-green transition"
@@ -99,6 +177,7 @@ export default function Register() {
                 alt="CampusFindU Logo"
                 className="w-16 h-20 object-contain"
               />
+
               <h1 className="text-2xl sm:text-3xl font-black text-mmsu-green tracking-tight mt-2 sm:mt-0">
                 Create an Account
               </h1>
@@ -110,136 +189,250 @@ export default function Register() {
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
+            <div
+              role="alert"
+              className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200"
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="flex flex-col gap-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Juan Dela Cruz"
-                value={formData.fullName}
-                onChange={(e) =>
-                  setFormData({ ...formData, fullName: e.target.value })
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Role
-              </label>
-              <select
-                value={formData.userType}
-                onChange={(e) =>
-                  setFormData({ ...formData, userType: e.target.value })
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
-              >
-                <option value="student">Student</option>
-                <option value="faculty">Faculty</option>
-                <option value="staff">Staff</option>
-                <option value="visitor">Visitor</option>
-              </select>
-            </div>
-
-            {formData.userType !== "visitor" && (
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">
-                  {formData.userType === "student"
-                    ? "Student ID"
-                    : "Employee ID"}
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder={
-                    formData.userType === "student"
-                      ? "2X-140XXX"
-                      : "e.g. EMP-001234"
-                  }
-                  value={formData.studId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, studId: e.target.value })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-                />
-              </div>
-            )}
-
-            {formData.userType === "visitor" && (
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">
-                  Contact Number
-                </label>
-                <input
-                  type="tel"
-                  autoComplete="tel"
-                  required
-                  placeholder="e.g. 09123456789"
-                  value={formData.contactNum}
-                  onChange={(e) =>
-                    setFormData({ ...formData, contactNum: e.target.value })
-                  }
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="e.g. juan@example.com"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
-                className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="e.g. River!Cloud72"
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className="w-full p-3 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-                />
-                <img
-                  src={showPassword ? "/eye.png" : "/hidden.png"}
-                  alt="Toggle Password Visibility"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3.5 w-5 h-5 cursor-pointer opacity-50 hover:opacity-100 transition"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
+          <form onSubmit={handleRegister}>
+            <fieldset
               disabled={loading}
-              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
+              className="flex flex-col gap-4 disabled:opacity-70"
             >
-              {loading ? "Creating Account..." : "Register"}
-            </button>
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-bold text-gray-700 mb-1"
+                >
+                  Full Name
+                </label>
+
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  placeholder="e.g. Juan Dela Cruz"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="userType"
+                  className="block text-sm font-bold text-gray-700 mb-1"
+                >
+                  Role
+                </label>
+
+                <select
+                  id="userType"
+                  name="userType"
+                  value={formData.userType}
+                  onChange={handleRoleChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
+                >
+                  <option value="student">Student</option>
+                  <option value="faculty">Faculty</option>
+                  <option value="staff">Staff</option>
+                  <option value="visitor">Visitor</option>
+                </select>
+              </div>
+
+              {formData.userType === "student" && (
+                <>
+                  <div>
+                    <label
+                      htmlFor="college"
+                      className="block text-sm font-bold text-gray-700 mb-1"
+                    >
+                      College
+                    </label>
+
+                    <select
+                      id="college"
+                      name="college"
+                      required
+                      value={formData.college}
+                      onChange={handleChange}
+                      className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
+                    >
+                      <option value="" disabled>
+                        Select your college
+                      </option>
+
+                      {colleges.map(([code, name]) => (
+                        <option key={code} value={code}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={applySCAdmin}
+                        onChange={(e) => setApplySCAdmin(e.target.checked)}
+                        className="mt-1 h-4 w-4"
+                      />
+
+                      <div>
+                        <span className="font-bold text-gray-800">
+                          Apply as College SC Admin
+                        </span>
+
+                        <p className="mt-1 text-sm text-gray-600">
+                          Apply only when you're a Student Council officer. Your
+                          account will remain a student account until the
+                          administrator approves your application.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="studId"
+                      className="block text-sm font-bold text-gray-700 mb-1"
+                    >
+                      Student ID
+                    </label>
+
+                    <input
+                      id="studId"
+                      name="studId"
+                      type="text"
+                      required
+                      placeholder="2X-140XXX"
+                      value={formData.studId}
+                      onChange={handleChange}
+                      className={inputClass}
+                    />
+                  </div>
+                </>
+              )}
+
+              {["faculty", "staff"].includes(formData.userType) && (
+                <div>
+                  <label
+                    htmlFor="employeeId"
+                    className="block text-sm font-bold text-gray-700 mb-1"
+                  >
+                    Employee ID
+                  </label>
+
+                  <input
+                    id="employeeId"
+                    name="employeeId"
+                    type="text"
+                    required
+                    placeholder="e.g. EMP-001234"
+                    value={formData.employeeId}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+              )}
+
+              {formData.userType === "visitor" && (
+                <div>
+                  <label
+                    htmlFor="contactNum"
+                    className="block text-sm font-bold text-gray-700 mb-1"
+                  >
+                    Contact Number
+                  </label>
+
+                  <input
+                    id="contactNum"
+                    name="contactNum"
+                    type="tel"
+                    autoComplete="tel"
+                    required
+                    placeholder="e.g. 09123456789"
+                    value={formData.contactNum}
+                    onChange={handleChange}
+                    className={inputClass}
+                  />
+                </div>
+              )}
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-bold text-gray-700 mb-1"
+                >
+                  Email Address
+                </label>
+
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="e.g. juan@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-bold text-gray-700 mb-1"
+                >
+                  Password
+                </label>
+
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    required
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`${inputClass} pr-12`}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((previous) => !previous)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-lg opacity-60 hover:opacity-100 transition"
+                  >
+                    <img
+                      src={showPassword ? "/eye.png" : "/hidden.png"}
+                      alt=""
+                      className="w-5 h-5"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
+              >
+                {loading ? "Creating Account..." : "Register"}
+              </button>
+            </fieldset>
           </form>
 
           <div className="text-center text-gray-500 text-sm mt-8 font-medium flex flex-col gap-1">
@@ -247,6 +440,7 @@ export default function Register() {
               &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos
               Norte
             </p>
+
             <p className="text-xs mt-1">
               <a
                 href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
@@ -267,7 +461,7 @@ export default function Register() {
           alt="School Campus"
           className="w-full h-full object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply" />
       </div>
     </div>
   );
