@@ -71,7 +71,7 @@ export default function Register() {
 
     setError("");
 
-    const allowedRoles = ["student", "faculty", "staff", "visitor"];
+    const allowedRoles = ["student", "faculty", "visitor"];
 
     if (!allowedRoles.includes(formData.userType)) {
       setError("Please select a valid registration role.");
@@ -84,7 +84,7 @@ export default function Register() {
     }
 
     const isStudent = formData.userType === "student";
-    const isEmployee = ["faculty", "staff"].includes(formData.userType);
+    const isEmployee = formData.userType === "faculty";
 
     if (isStudent && !colleges.some(([code]) => code === formData.college)) {
       setError("Please select your college.");
@@ -240,7 +240,6 @@ export default function Register() {
                 >
                   <option value="student">Student</option>
                   <option value="faculty">Faculty</option>
-                  <option value="staff">Staff</option>
                   <option value="visitor">Visitor</option>
                 </select>
               </div>
@@ -276,26 +275,32 @@ export default function Register() {
                   </div>
 
                   <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <label className="flex items-start gap-3 cursor-pointer">
+                    <label
+                      htmlFor="applySCAdmin"
+                      className="flex items-start gap-3 cursor-pointer"
+                    >
                       <input
+                        id="applySCAdmin"
                         type="checkbox"
                         checked={applySCAdmin}
                         onChange={(e) => setApplySCAdmin(e.target.checked)}
+                        aria-describedby="sc-admin-help"
                         className="mt-1 h-4 w-4"
                       />
 
-                      <div>
-                        <span className="font-bold text-gray-800">
-                          Apply as College SC Admin
-                        </span>
-
-                        <p className="mt-1 text-sm text-gray-600">
-                          Apply only when you're a Student Council officer. Your
-                          account will remain a student account until the
-                          administrator approves your application.
-                        </p>
-                      </div>
+                      <span className="font-bold text-gray-800">
+                        Apply as College SC Admin
+                      </span>
                     </label>
+
+                    <p
+                      id="sc-admin-help"
+                      className="mt-2 text-sm text-gray-600"
+                    >
+                      Apply only when you're a Student Council officer. Your
+                      account will remain a student account until the main
+                      administrator approves your application.
+                    </p>
                   </div>
 
                   <div>
@@ -320,7 +325,7 @@ export default function Register() {
                 </>
               )}
 
-              {["faculty", "staff"].includes(formData.userType) && (
+              {formData.userType === "faculty" && (
                 <div>
                   <label
                     htmlFor="employeeId"
