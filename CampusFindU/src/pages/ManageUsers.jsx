@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 const collegeNames = {
   CCIS: "College of Computing and Information Sciences",

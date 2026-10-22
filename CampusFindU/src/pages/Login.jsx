@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function Login({ adminOnly = false }) {
   const [email, setEmail] = useState("");

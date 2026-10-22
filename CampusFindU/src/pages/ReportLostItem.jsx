@@ -3,7 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function ReportLostItem() {
   const navigate = useNavigate();

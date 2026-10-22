@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { supabase } from "../supabaseClient";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 import { MapPin, Tag } from "lucide-react";
 
 export default function LostItemsList() {
@@ -108,7 +108,7 @@ export default function LostItemsList() {
                   alt={item.title}
                   className="hidden md:block w-full h-48 object-cover"
                 />
-                <button 
+                <button
                   onClick={() => {
                     Swal.fire({
                       title: item.title,
@@ -141,7 +141,11 @@ export default function LostItemsList() {
                   {item.title}
                 </h3>
                 <span
-                  className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${item.status === "resolved" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                  className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
+                    item.status === "resolved"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
                 >
                   {item.status || "lost"}
                 </span>

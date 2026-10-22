@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function FoundItemsList() {
   const [items, setItems] = useState([]);

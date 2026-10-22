@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 const colleges = [
   ["CCIS", "College of Computing and Information Sciences"],

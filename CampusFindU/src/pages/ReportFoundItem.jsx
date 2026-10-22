@@ -3,7 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function ReportFoundItem() {
   const navigate = useNavigate();
@@ -48,9 +48,7 @@ export default function ReportFoundItem() {
 
         if (uploadError) throw uploadError;
 
-        const { data } = supabase.storage
-          .from("Items")
-          .getPublicUrl(filePath);
+        const { data } = supabase.storage.from("Items").getPublicUrl(filePath);
         finalImageUrl = data.publicUrl;
       }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -15,7 +15,10 @@ export default function ResetPassword() {
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (hashParams.get("error")) {
-      setError(hashParams.get("error_description") || "The password reset link is invalid or has expired.");
+      setError(
+        hashParams.get("error_description") ||
+          "The password reset link is invalid or has expired.",
+      );
     }
   }, []);
 

@@ -5,6 +5,8 @@ import axios from "axios";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
+const API_URL = "https://campusfindu-backend.onrender.com/api";
+
 const redIcon = new L.Icon({
   iconUrl:
     "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
@@ -27,25 +29,157 @@ const greenIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+function getPosition(item) {
+  if (
+    item.latitude == null ||
+    item.longitude == null ||
+    String(item.latitude).trim() === "" ||
+    String(item.longitude).trim() === ""
+  ) {
+    return null;
+  }
+
+  const latitude = Number(item.latitude);
+  const longitude = Number(item.longitude);
+
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return null;
+  }
+
+  return [latitude, longitude];
+}
+
+function getActiveItems(items, status) {
+  return items.filter(
+    (item) =>
+      String(item.status || "")
+        .trim()
+        .toLowerCase() === status,
+  );
+}
+
 export default function CampusMap() {
-  const mmsuCenter = { lat: 18.0583, lng: 120.5446 };
   const [lostItems, setLostItems] = useState([]);
   const [foundItems, setFoundItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    axios
-      .get("https://campusfindu-backend.onrender.com/api/lost-items")
-      .then((res) => setLostItems(res.data));
+    let mounted = true;
+    let fetching = false;
+    const controller = new AbortController();
 
-    axios
-      .get("https://campusfindu-backend.onrender.com/api/found-items")
-      .then((res) => setFoundItems(res.data));
+    const fetchItems = async () => {
+      if (fetching || !mounted) return;
+
+      fetching = true;
+
+      try {
+        const [lostResponse, foundResponse] = await Promise.all([
+          axios.get(`${API_URL}/lost-items`, {
+            signal: controller.signal,
+            timeout: 30000,
+          }),
+          axios.get(`${API_URL}/found-items`, {
+            signal: controller.signal,
+            timeout: 30000,
+          }),
+        ]);
+
+        if (!mounted) return;
+
+        if (
+          !Array.isArray(lostResponse.data) ||
+          !Array.isArray(foundResponse.data)
+        ) {
+          throw new Error("Unexpected item response.");
+        }
+
+        setLostItems(getActiveItems(lostResponse.data, "lost"));
+        setFoundItems(getActiveItems(foundResponse.data, "found"));
+        setError("");
+      } catch (requestError) {
+        if (!mounted || axios.isCancel(requestError)) return;
+
+        setError(
+          "Unable to refresh map items. Previously loaded markers may be outdated.",
+        );
+      } finally {
+        fetching = false;
+
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") {
+        fetchItems();
+      }
+    };
+
+    fetchItems();
+
+    const intervalId = window.setInterval(refreshWhenVisible, 15000);
+
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+
+    return () => {
+      mounted = false;
+      controller.abort();
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
   }, []);
 
   return (
     <div style={{ width: "100%", minWidth: 0 }}>
-      <h2>MMSU Campus Map</h2>
-      <p style={{ fontWeight: "bold" }}>🔴 Lost Items | 🟢 Found Items</p>
+      <div className="mb-4">
+        <h2 className="text-xl font-bold text-mmsu-green">MMSU Campus Map</h2>
+
+        <p className="mt-1 text-sm font-bold">
+          🔴 Lost Items ({lostItems.length}) | 🟢 Found Items (
+          {foundItems.length})
+        </p>
+
+        <p className="mt-1 text-xs text-gray-500">
+          Active reports refresh automatically every 15 seconds.
+        </p>
+      </div>
+
+      {loading && (
+        <p role="status" className="mb-3 text-sm text-gray-500">
+          Loading map items...
+        </p>
+      )}
+
+      {error && (
+        <p
+          role="alert"
+          className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+        >
+          {error}
+        </p>
+      )}
+
+      {!loading &&
+        !error &&
+        lostItems.length === 0 &&
+        foundItems.length === 0 && (
+          <p className="mb-3 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+            No active lost or found reports to display.
+          </p>
+        )}
 
       <div
         style={{
@@ -58,55 +192,59 @@ export default function CampusMap() {
         }}
       >
         <MapContainer
-          center={mmsuCenter}
+          center={[18.0583, 120.5446]}
           zoom={15}
           minZoom={10}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
-            attribution="&copy; OpenStreetMap"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {lostItems.map(
-            (item) =>
-              item.latitude &&
-              item.longitude && (
-                <Marker
-                  key={`lost-${item.id}`}
-                  position={[item.latitude, item.longitude]}
-                  icon={redIcon}
-                >
-                  <Popup>
-                    <strong>{item.title}</strong>
-                    <br />
-                    <span style={{ color: "red" }}>Status: Lost</span>
-                    <br />
-                    <Link to={`/items/lost/${item.id}`}>View Details</Link>
-                  </Popup>
-                </Marker>
-              ),
-          )}
+          {lostItems.map((item) => {
+            const position = getPosition(item);
 
-          {foundItems.map(
-            (item) =>
-              item.latitude &&
-              item.longitude && (
-                <Marker
-                  key={`found-${item.id}`}
-                  position={[item.latitude, item.longitude]}
-                  icon={greenIcon}
-                >
-                  <Popup>
-                    <strong>{item.title}</strong>
-                    <br />
-                    <span style={{ color: "green" }}>Status: Found</span>
-                    <br />
-                    <Link to={`/items/found/${item.id}`}>View Details</Link>
-                  </Popup>
-                </Marker>
-              ),
-          )}
+            if (!position) return null;
+
+            return (
+              <Marker
+                key={`lost-${item.id}`}
+                position={position}
+                icon={redIcon}
+              >
+                <Popup>
+                  <strong>{item.title}</strong>
+                  <br />
+                  <span style={{ color: "red" }}>Status: Lost</span>
+                  <br />
+                  <Link to={`/items/lost/${item.id}`}>View Details</Link>
+                </Popup>
+              </Marker>
+            );
+          })}
+
+          {foundItems.map((item) => {
+            const position = getPosition(item);
+
+            if (!position) return null;
+
+            return (
+              <Marker
+                key={`found-${item.id}`}
+                position={position}
+                icon={greenIcon}
+              >
+                <Popup>
+                  <strong>{item.title}</strong>
+                  <br />
+                  <span style={{ color: "green" }}>Status: Found</span>
+                  <br />
+                  <Link to={`/items/found/${item.id}`}>View Details</Link>
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
       </div>
     </div>
