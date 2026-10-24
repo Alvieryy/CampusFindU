@@ -102,9 +102,13 @@ export default function CampusMap() {
         return;
       }
 
-      console.error(requestError);
+      console.error("CampusMap fetch error:", requestError);
+      const detail =
+        requestError.response?.data?.error ||
+        requestError.message ||
+        "Network Error";
       setError(
-        "Unable to refresh map items. The server may still be waking up.",
+        `Unable to load map items (${detail}). The server may still be waking up.`,
       );
     } finally {
       fetchingRef.current = false;
