@@ -335,30 +335,26 @@ export default function Dashboard() {
         Here's what's happening with your reports and claims.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StudentCard
-          count={stats.lost}
-          label="Lost Items Reported"
-          bgColor="bg-blue-100"
-          textColor="text-blue-800"
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <StatCard
+          title="Lost Items Reported"
+          value={stats.lost}
+          color="text-red-500"
         />
-        <StudentCard
-          count={stats.found}
-          label="Found Items Reported"
-          bgColor="bg-green-100"
-          textColor="text-green-800"
+        <StatCard
+          title="Found Items Reported"
+          value={stats.found}
+          color="text-green-500"
         />
-        <StudentCard
-          count={stats.pendingClaims}
-          label="Pending Claims"
-          bgColor="bg-yellow-100"
-          textColor="text-yellow-800"
+        <StatCard
+          title="Pending Claims"
+          value={stats.pendingClaims}
+          color="text-orange-500"
         />
-        <StudentCard
-          count={stats.resolved}
-          label="Items Claimed"
-          bgColor="bg-indigo-100"
-          textColor="text-indigo-800"
+        <StatCard
+          title="Items Claimed"
+          value={stats.resolved}
+          color="text-purple-600"
         />
       </div>
 
@@ -423,13 +419,3 @@ function StatCard({ title, value, color }) {
   );
 }
 
-function StudentCard({ count, label, bgColor, textColor }) {
-  return (
-    <div
-      className={`${bgColor} ${textColor} p-6 rounded-lg border border-black/5 shadow-sm flex flex-col justify-center`}
-    >
-      <h3 className="text-3xl font-black mb-1">{count}</h3>
-      <p className="text-sm font-medium">{label}</p>
-    </div>
-  );
-}
