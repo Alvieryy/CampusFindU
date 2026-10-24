@@ -70,6 +70,7 @@ export default function ItemDetail({ type }) {
                     <img
                       src={item.image_url}
                       alt={item.title}
+                      decoding="async"
                       className="hidden sm:block max-w-[150px] rounded-md border border-gray-200 shadow-sm"
                     />
                     <button

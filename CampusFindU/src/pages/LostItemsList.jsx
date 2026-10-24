@@ -107,6 +107,8 @@ export default function LostItemsList() {
                 <img
                   src={item.image_url}
                   alt={item.title}
+                  loading="lazy"
+                  decoding="async"
                   className="hidden md:block w-full h-48 object-cover"
                 />
                 <button

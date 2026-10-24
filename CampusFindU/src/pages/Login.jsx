@@ -136,6 +136,8 @@ export default function Login({ adminOnly = false, guestOnly = false }) {
         src="/school.jpg"
         alt=""
         aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
         className="absolute inset-0 -z-20 h-full w-full object-cover"
       />
 

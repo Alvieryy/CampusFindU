@@ -115,6 +115,8 @@ export default function ForgotPassword() {
         <img
           src="/school.jpg"
           alt="University Campus Building"
+          fetchPriority="high"
+          decoding="async"
           className="w-full h-full object-cover opacity-90"
         />
         <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
