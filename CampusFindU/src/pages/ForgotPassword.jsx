@@ -8,6 +8,9 @@ export default function ForgotPassword() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const inputClass =
+    "w-full min-h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-mmsu-green focus:ring-2 focus:ring-green-100 disabled:opacity-60";
+
   const handleReset = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -33,94 +36,131 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex font-sans bg-gray-50">
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative overflow-y-auto">
-        <div className="w-full max-w-md my-auto">
-          <div className="mb-8">
-            <Link
-              to="/login"
-              className="text-gray-400 font-bold hover:text-mmsu-green transition flex items-center gap-2 mb-6"
-            >
-              <span>&larr;</span> Back to Login
-            </Link>
+    <div className="relative isolate flex min-h-screen flex-col bg-mmsu-green font-sans">
+      <img
+        src="/school.jpg"
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
+        className="fixed inset-0 -z-20 h-full w-full object-cover"
+      />
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
-              <img
-                src="/logo.png"
-                alt="CampusFindU Logo"
-                className="w-20 h-24 sm:w-24 sm:h-28 object-contain"
-              />
-              <h1 className="text-xl sm:text-2xl font-black text-mmsu-green tracking-tight leading-tight mt-2 sm:mt-0">
-                CampusFindU:
-                <br />
-                LOST AND FOUND
-                <br />
-                MANAGEMENT SYSTEM
-              </h1>
-            </div>
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 bg-gradient-to-br from-green-950/90 via-green-950/65 to-black/50"
+      />
 
-            <p className="text-gray-500 font-medium mt-4">
+      <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-10">
+        <Link
+          to="/"
+          className="flex items-center gap-3 rounded-lg text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        >
+          <img src="/logo.png" alt="" className="h-12 w-10 object-contain" />
+
+          <span>
+            <span className="block text-lg font-extrabold tracking-tight">
+              CampusFindU
+            </span>
+
+            <span className="block text-xs text-green-100">
+              Lost and Found Management System
+            </span>
+          </span>
+        </Link>
+
+        <Link
+          to="/login"
+          className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:text-sm"
+        >
+          Back to Login
+        </Link>
+      </header>
+
+      <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+        <section
+          aria-label="Forgot password"
+          className="w-full max-w-md rounded-3xl border border-white/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md sm:p-9"
+        >
+          <div className="mb-6 text-center">
+            <img
+              src="/logo.png"
+              alt="CampusFindU"
+              className="mx-auto h-20 w-16 object-contain"
+            />
+
+            <h1 className="mt-4 text-3xl sm:text-4xl font-black tracking-wide text-mmsu-green">
+              FORGOT PASSWORD
+            </h1>
+
+            <p className="mt-2 text-sm font-medium text-gray-600">
               Enter your email address and we'll send you a link to reset your
               password.
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
+            <div
+              role="alert"
+              className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700"
+            >
               {error}
             </div>
           )}
+
           {message && (
-            <div className="bg-green-50 text-green-700 p-3 rounded mb-4 text-sm font-bold border border-green-200">
+            <div
+              role="status"
+              className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium leading-relaxed text-green-700"
+            >
               {message}
             </div>
           )}
 
-          <form onSubmit={handleReset} className="flex flex-col gap-5">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full p-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-              />
-            </div>
+          <form onSubmit={handleReset}>
+            <fieldset disabled={loading} className="space-y-5">
+              <div>
+                <label
+                  htmlFor="reset-email"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
+                >
+                  Email Address
+                </label>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
-            >
-              {loading ? "Sending..." : "Send Reset Link"}
-            </button>
+                <input
+                  id="reset-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className={inputClass}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex min-h-12 w-full items-center justify-center rounded-xl bg-mmsu-green px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-mmsu-light-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green disabled:cursor-wait disabled:opacity-60"
+              >
+                {loading ? "Sending link..." : "Send Reset Link"}
+              </button>
+            </fieldset>
           </form>
 
-          <p className="mt-8 text-sm font-medium text-gray-500 text-center">
+          <p className="mt-8 text-center text-sm font-medium text-gray-500">
             Remember your password?{" "}
             <Link
               to="/login"
-              className="text-mmsu-green font-bold hover:underline"
+              className="font-bold text-mmsu-green hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green"
             >
-              Login
+              Sign in
             </Link>
           </p>
-        </div>
-      </div>
-
-      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
-        <img
-          src="/school.jpg"
-          alt="University Campus Building"
-          fetchPriority="high"
-          decoding="async"
-          className="w-full h-full object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

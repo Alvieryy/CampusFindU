@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import Toast from "../utils/toast";
+import SearchableSelect from "../components/SearchableSelect";
 
 const colleges = [
   ["CCIS", "College of Computing and Information Sciences"],
@@ -81,7 +82,7 @@ export default function Register({ guestOnly = false }) {
 
     const allowedRoles = guestOnly
       ? ["visitor"]
-      : ["student", "faculty", "visitor"];
+      : ["student", "faculty"];
 
     if (!allowedRoles.includes(userType)) {
       setError("Please select a valid registration role.");
@@ -247,17 +248,18 @@ export default function Register({ guestOnly = false }) {
                     Role
                   </label>
 
-                  <select
+                  <SearchableSelect
                     id="userType"
                     name="userType"
                     value={formData.userType}
                     onChange={handleRoleChange}
-                    className={inputClass}
-                  >
-                    <option value="student">Student</option>
-                    <option value="faculty">Faculty</option>
-                    <option value="visitor">Visitor</option>
-                  </select>
+                    options={[
+                      { value: "student", label: "Student" },
+                      { value: "faculty", label: "Faculty" },
+                    ]}
+                    placeholder="Select your role"
+                    searchPlaceholder="Search role..."
+                  />
                 </div>
               )}
 
@@ -268,24 +270,19 @@ export default function Register({ guestOnly = false }) {
                       College
                     </label>
 
-                    <select
+                    <SearchableSelect
                       id="college"
                       name="college"
                       required
                       value={formData.college}
                       onChange={handleChange}
-                      className={inputClass}
-                    >
-                      <option value="" disabled>
-                        Select your college
-                      </option>
-
-                      {colleges.map(([code, name]) => (
-                        <option key={code} value={code}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
+                      options={colleges.map(([code, name]) => ({
+                        value: code,
+                        label: `${code} - ${name}`,
+                      }))}
+                      placeholder="Select your college"
+                      searchPlaceholder="Search college by code or name..."
+                    />
                   </div>
 
                   <div>

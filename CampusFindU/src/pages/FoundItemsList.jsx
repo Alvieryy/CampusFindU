@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "../utils/swal";
+import EmptyState from "../components/EmptyState";
+import { CardGridSkeleton } from "../components/Skeleton";
 
 export default function FoundItemsList() {
   const [items, setItems] = useState([]);
@@ -32,7 +34,17 @@ export default function FoundItemsList() {
     );
   });
 
-  if (loading) return <div style={{ padding: "20px" }}>Loading items...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-48" />
+          <div className="h-11 bg-gray-200 rounded-lg w-full md:w-64" />
+        </div>
+        <CardGridSkeleton count={8} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-4 md:p-8">
@@ -49,9 +61,25 @@ export default function FoundItemsList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredItems.length === 0 ? (
-          <p className="text-gray-500 col-span-full text-center py-12">
-            No found items matched your search.
-          </p>
+          <div className="col-span-full py-4">
+            <EmptyState
+              title={
+                searchTerm
+                  ? "No Matching Found Items"
+                  : "No Found Items Reported Yet"
+              }
+              description={
+                searchTerm
+                  ? `No items found matching "${searchTerm}". Try a different keyword or clear your search.`
+                  : "There are currently no found items listed. If you've found an item on campus, report it to help return it to its owner."
+              }
+              actionText={searchTerm ? "Clear Search" : "Report a Found Item"}
+              actionLink={searchTerm ? null : "/report-found"}
+              onAction={searchTerm ? () => setSearchTerm("") : null}
+              secondaryActionText={searchTerm ? "Report a Found Item" : null}
+              secondaryActionLink={searchTerm ? "/report-found" : null}
+            />
+          </div>
         ) : (
           filteredItems.map((item) => (
             <div

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { Link } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
+import { TableSkeleton } from "../components/Skeleton";
 
 export default function MyItems() {
   const [activeTab, setActiveTab] = useState("lost");
@@ -44,7 +46,9 @@ export default function MyItems() {
 
   if (loading) {
     return (
-      <div className="p-8 text-gray-500 font-sans">Loading data...</div>
+      <div className="max-w-6xl mx-auto font-sans">
+        <TableSkeleton rows={5} cols={5} />
+      </div>
     );
   }
 
@@ -86,8 +90,13 @@ export default function MyItems() {
             {activeTab === "lost" &&
               (lostItems.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-8 text-gray-500 text-center">
-                    No lost items reported yet.
+                  <td colSpan="5" className="py-8 px-4 text-center">
+                    <EmptyState
+                      title="No Lost Items Reported Yet"
+                      description="You haven't reported any lost items. If you misplaced an item on campus, report it now to help find it."
+                      actionText="Report Lost Item"
+                      actionLink="/report-lost"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -128,8 +137,13 @@ export default function MyItems() {
             {activeTab === "found" &&
               (foundItems.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-8 text-gray-500 text-center">
-                    No found items reported yet.
+                  <td colSpan="5" className="py-8 px-4 text-center">
+                    <EmptyState
+                      title="No Found Items Reported Yet"
+                      description="You haven't reported any found items. Help return discovered belongings to their owners."
+                      actionText="Report Found Item"
+                      actionLink="/report-found"
+                    />
                   </td>
                 </tr>
               ) : (
@@ -170,8 +184,13 @@ export default function MyItems() {
             {activeTab === "claims" &&
               (myClaims.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="py-8 text-gray-500 text-center">
-                    You haven't submitted any claims.
+                  <td colSpan="5" className="py-8 px-4 text-center">
+                    <EmptyState
+                      title="No Claims Submitted Yet"
+                      description="You haven't filed any claims yet. Browse the found items board to locate and claim your missing belongings."
+                      actionText="Browse Found Items"
+                      actionLink="/found-items"
+                    />
                   </td>
                 </tr>
               ) : (

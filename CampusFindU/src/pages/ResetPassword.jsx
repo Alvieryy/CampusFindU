@@ -12,6 +12,9 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const inputClass =
+    "w-full min-h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-mmsu-green focus:ring-2 focus:ring-green-100 disabled:opacity-60";
+
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     if (hashParams.get("error")) {
@@ -57,107 +60,178 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex font-sans bg-gray-50">
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 bg-white relative overflow-y-auto">
-        <div className="w-full max-w-md my-auto">
-          <div className="mb-8">
-            <Link
-              to="/login"
-              className="text-gray-400 font-bold hover:text-mmsu-green transition flex items-center gap-2 mb-6"
-            >
-              <span>&larr;</span> Back to Login
-            </Link>
+    <div className="relative isolate flex min-h-screen flex-col bg-mmsu-green font-sans">
+      <img
+        src="/school.jpg"
+        alt=""
+        aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
+        className="fixed inset-0 -z-20 h-full w-full object-cover"
+      />
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6 sm:mb-2 text-center sm:text-left">
-              <img
-                src="/logo.png"
-                alt="CampusFindU Logo"
-                className="w-20 h-24 sm:w-24 sm:h-28 object-contain"
-              />
-              <h1 className="text-xl sm:text-2xl font-black text-mmsu-green tracking-tight leading-tight mt-2 sm:mt-0">
-                CampusFindU:
-                <br />
-                LOST AND FOUND
-                <br />
-                MANAGEMENT SYSTEM
-              </h1>
-            </div>
+      <div
+        aria-hidden="true"
+        className="fixed inset-0 -z-10 bg-gradient-to-br from-green-950/90 via-green-950/65 to-black/50"
+      />
 
-            <p className="text-gray-500 font-medium mt-4">
+      <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-10">
+        <Link
+          to="/"
+          className="flex items-center gap-3 rounded-lg text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        >
+          <img src="/logo.png" alt="" className="h-12 w-10 object-contain" />
+
+          <span>
+            <span className="block text-lg font-extrabold tracking-tight">
+              CampusFindU
+            </span>
+
+            <span className="block text-xs text-green-100">
+              Lost and Found Management System
+            </span>
+          </span>
+        </Link>
+
+        <Link
+          to="/login"
+          className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:text-sm"
+        >
+          Back to Login
+        </Link>
+      </header>
+
+      <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+        <section
+          aria-label="Reset password"
+          className="w-full max-w-md rounded-3xl border border-white/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md sm:p-9"
+        >
+          <div className="mb-6 text-center">
+            <img
+              src="/logo.png"
+              alt="CampusFindU"
+              className="mx-auto h-20 w-16 object-contain"
+            />
+
+            <h1 className="mt-4 text-3xl sm:text-4xl font-black tracking-wide text-mmsu-green">
+              RESET PASSWORD
+            </h1>
+
+            <p className="mt-2 text-sm font-medium text-gray-600">
               Create a new secure password for your account.
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200">
+            <div
+              role="alert"
+              className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700"
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={handleUpdatePassword} className="flex flex-col gap-5">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                New Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full p-4 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-                />
-                <img
-                  src={showPassword ? "/eye.png" : "/hidden.png"}
-                  alt="Toggle Password Visibility"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-4 w-6 h-6 cursor-pointer opacity-50 hover:opacity-100 transition"
-                />
-              </div>
-            </div>
+          <form onSubmit={handleUpdatePassword}>
+            <fieldset disabled={loading} className="space-y-5">
+              <div>
+                <label
+                  htmlFor="new-password"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
+                >
+                  New Password
+                </label>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Confirm New Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="w-full p-4 pr-10 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50"
-                />
-                <img
-                  src={showConfirmPassword ? "/eye.png" : "/hidden.png"}
-                  alt="Toggle Password Visibility"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-4 w-6 h-6 cursor-pointer opacity-50 hover:opacity-100 transition"
-                />
-              </div>
-            </div>
+                <div className="relative">
+                  <input
+                    id="new-password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className={`${inputClass} pr-14`}
+                  />
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
-            >
-              {loading ? "Updating..." : "Reset Password"}
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showPassword}
+                    className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-lg transition hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mmsu-green"
+                  >
+                    <img
+                      src={showPassword ? "/eye.png" : "/hidden.png"}
+                      alt=""
+                      className="h-5 w-5 opacity-60"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirm-password"
+                  className="mb-2 block text-sm font-semibold text-gray-700"
+                >
+                  Confirm New Password
+                </label>
+
+                <div className="relative">
+                  <input
+                    id="confirm-password"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className={`${inputClass} pr-14`}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                    aria-pressed={showConfirmPassword}
+                    className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-lg transition hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mmsu-green"
+                  >
+                    <img
+                      src={showConfirmPassword ? "/eye.png" : "/hidden.png"}
+                      alt=""
+                      className="h-5 w-5 opacity-60"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex min-h-12 w-full items-center justify-center rounded-xl bg-mmsu-green px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-mmsu-light-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green disabled:cursor-wait disabled:opacity-60"
+              >
+                {loading ? "Updating password..." : "Reset Password"}
+              </button>
+            </fieldset>
           </form>
-        </div>
-      </div>
 
-      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
-        <img
-          src="/school.jpg"
-          alt="University Campus Building"
-          fetchPriority="high"
-          decoding="async"
-          className="w-full h-full object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply"></div>
-      </div>
+          <p className="mt-8 text-center text-sm font-medium text-gray-500">
+            Back to{" "}
+            <Link
+              to="/login"
+              className="font-bold text-mmsu-green hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green"
+            >
+              Sign in
+            </Link>
+          </p>
+        </section>
+      </main>
     </div>
   );
 }

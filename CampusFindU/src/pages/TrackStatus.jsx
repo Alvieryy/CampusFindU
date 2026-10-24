@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
+import { DetailSkeleton } from "../components/Skeleton";
 
 export default function TrackStatus() {
   const { type, id } = useParams();
@@ -26,10 +28,19 @@ export default function TrackStatus() {
   }, [id, type]);
 
   if (loading) {
-    return <div className="p-8 text-gray-500 font-sans">Loading status...</div>;
+    return <DetailSkeleton />;
   }
   if (!item) {
-    return <div className="p-8 text-red-500 font-sans">Item not found.</div>;
+    return (
+      <div className="max-w-4xl mx-auto font-sans mt-4">
+        <EmptyState
+          title="Status Not Available"
+          description="The item status you are attempting to track was not found."
+          actionText="Back to My Items"
+          actionLink="/my-items"
+        />
+      </div>
+    );
   }
 
   const s = item.status;

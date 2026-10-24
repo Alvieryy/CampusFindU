@@ -3,6 +3,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import SmartMatch from "../components/SmartMatch";
 import Swal from "../utils/swal";
+import EmptyState from "../components/EmptyState";
+import { DetailSkeleton } from "../components/Skeleton";
 
 export default function ItemDetail({ type }) {
   const { id } = useParams();
@@ -29,12 +31,19 @@ export default function ItemDetail({ type }) {
   }, [id, type]);
 
   if (loading) {
-    return (
-      <div className="p-5 text-center text-gray-500">Loading details...</div>
-    );
+    return <DetailSkeleton />;
   }
   if (!item) {
-    return <div className="p-5 text-center text-gray-500">Item not found!</div>;
+    return (
+      <div className="p-5 max-w-4xl mx-auto mt-10 font-sans">
+        <EmptyState
+          title="Item Not Found"
+          description="The item report you are looking for does not exist or may have been removed."
+          actionText="Back to Items Board"
+          actionLink={type === "lost" ? "/lost-items" : "/found-items"}
+        />
+      </div>
+    );
   }
 
   return (

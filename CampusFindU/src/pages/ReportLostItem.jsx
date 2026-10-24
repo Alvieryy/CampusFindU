@@ -4,6 +4,7 @@ import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
 import Toast from "../utils/toast";
+import SearchableSelect from "../components/SearchableSelect";
 
 export default function ReportLostItem() {
   const navigate = useNavigate();
@@ -137,17 +138,23 @@ export default function ReportLostItem() {
               <label className="block text-sm font-bold text-gray-700 mb-2">
                 Category <span className="text-red-500">*</span>
               </label>
-              <select
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white transition shadow-sm"
+              <SearchableSelect
+                id="category"
+                name="category"
+                value={formData.category}
                 onChange={(e) =>
                   setFormData({ ...formData, category: e.target.value })
                 }
-              >
-                <option value="Electronics">Electronics</option>
-                <option value="Wallets">Wallets & IDs</option>
-                <option value="Clothing">Clothing</option>
-                <option value="Other">Other</option>
-              </select>
+                options={[
+                  { value: "Electronics", label: "Electronics" },
+                  { value: "Wallets", label: "Wallets & IDs" },
+                  { value: "Clothing", label: "Clothing" },
+                  { value: "Other", label: "Other" },
+                ]}
+                placeholder="Select category"
+                searchPlaceholder="Search category..."
+                className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+              />
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Toast from "../utils/toast";
+import EmptyState from "../components/EmptyState";
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
@@ -71,7 +72,26 @@ export default function AdminClaims() {
   };
 
   if (loading) {
-    return <div className="p-8 font-bold text-gray-500">Loading Claims...</div>;
+    return (
+      <div className="max-w-6xl mx-auto font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-64 mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="border border-gray-200 rounded-lg p-6 space-y-4"
+            >
+              <div className="h-5 bg-gray-200 rounded w-1/2" />
+              <div className="h-16 bg-gray-100 rounded" />
+              <div className="flex gap-2">
+                <div className="h-9 bg-gray-200 rounded w-24" />
+                <div className="h-9 bg-gray-200 rounded w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -81,7 +101,12 @@ export default function AdminClaims() {
       </h2>
 
       {claims.length === 0 ? (
-        <p className="text-gray-500">No claims have been submitted yet.</p>
+        <EmptyState
+          title="All Caught Up!"
+          description="There are currently no claims pending administrator review."
+          actionText="Go to Dashboard"
+          actionLink="/dashboard"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {claims.map((claim) => (

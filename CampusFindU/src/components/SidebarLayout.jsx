@@ -203,7 +203,7 @@ export default function SidebarLayout({ children }) {
             : "-translate-x-full invisible"
         }`}
       >
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-mmsu-light-green px-4 py-4 md:px-6">
+        <div className="flex h-16 md:h-[72px] shrink-0 items-center justify-between gap-2 border-b border-mmsu-light-green px-4 md:px-6">
           <span className="text-lg font-bold tracking-wide">CampusFindU</span>
           <button
             ref={closeButtonRef}
@@ -273,7 +273,7 @@ export default function SidebarLayout({ children }) {
       </aside>
 
       <div className="min-w-0 flex-1 flex flex-col overflow-hidden">
-        <header className="bg-mmsu-green text-white p-4 px-4 md:px-8 flex justify-between items-center shadow-md z-10">
+        <header className="flex h-16 md:h-[72px] shrink-0 items-center justify-between bg-mmsu-green text-white px-4 md:px-8 border-b border-mmsu-light-green z-10">
           <div className="flex items-center">
             <button
               ref={menuButtonRef}

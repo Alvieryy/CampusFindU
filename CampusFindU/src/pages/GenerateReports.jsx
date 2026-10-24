@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import Toast from "../utils/toast";
+import SearchableSelect from "../components/SearchableSelect";
 
 export default function GenerateReports() {
   const [reportType, setReportType] = useState("Lost Items Summary");
@@ -175,15 +176,20 @@ export default function GenerateReports() {
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Report Type
           </label>
-          <select
+          <SearchableSelect
+            id="reportType"
+            name="reportType"
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
-          >
-            <option>Lost Items Summary</option>
-            <option>Found Items Summary</option>
-            <option>Claims Report</option>
-          </select>
+            options={[
+              "Lost Items Summary",
+              "Found Items Summary",
+              "Claims Report",
+            ]}
+            placeholder="Select report type"
+            searchPlaceholder="Search report type..."
+            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mmsu-green bg-white"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -215,14 +221,16 @@ export default function GenerateReports() {
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Format
           </label>
-          <select
+          <SearchableSelect
+            id="format"
+            name="format"
             value={format}
             onChange={(e) => setFormat(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
-          >
-            <option>PDF</option>
-            <option>Excel (CSV)</option>
-          </select>
+            options={["PDF", "Excel (CSV)"]}
+            placeholder="Select format"
+            searchPlaceholder="Search format..."
+            className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mmsu-green bg-white"
+          />
         </div>
 
         <button

@@ -16,6 +16,8 @@ import {
   Line,
   CartesianGrid,
 } from "recharts";
+import EmptyState from "../components/EmptyState";
+import { DashboardSkeleton } from "../components/Skeleton";
 
 export default function Dashboard() {
   const [profile, setProfile] = useState({});
@@ -179,9 +181,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="p-8 text-gray-500 font-bold">Loading Dashboard...</div>
-    );
+    return <DashboardSkeleton isAdmin={profile.userType === "admin"} />;
   }
 
   if (profile.userType === "admin") {
@@ -362,25 +362,30 @@ export default function Dashboard() {
         <div className="p-6 border-b border-gray-100">
           <h3 className="font-bold text-lg text-gray-800">Recent Activity</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-500 text-sm border-b border-gray-100">
-              <tr>
-                <th className="p-4 font-medium">Type</th>
-                <th className="p-4 font-medium">Item / Details</th>
-                <th className="p-4 font-medium">Date</th>
-                <th className="p-4 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentActivity.length === 0 ? (
+        {recentActivity.length === 0 ? (
+          <div className="p-6">
+            <EmptyState
+              title="No Recent Activity Yet"
+              description="Your reported lost or found items and filed claims will appear here once you take action."
+              actionText="Report Lost Item"
+              actionLink="/report-lost"
+              secondaryActionText="Report Found Item"
+              secondaryActionLink="/report-found"
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-500 text-sm border-b border-gray-100">
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500">
-                    No recent activity.
-                  </td>
+                  <th className="p-4 font-medium">Type</th>
+                  <th className="p-4 font-medium">Item / Details</th>
+                  <th className="p-4 font-medium">Date</th>
+                  <th className="p-4 font-medium">Status</th>
                 </tr>
-              ) : (
-                recentActivity.map((act, i) => (
+              </thead>
+              <tbody>
+                {recentActivity.map((act, i) => (
                   <tr
                     key={i}
                     className="border-b border-gray-50 hover:bg-gray-50 transition"
@@ -398,11 +403,11 @@ export default function Dashboard() {
                       </span>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

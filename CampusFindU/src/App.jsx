@@ -35,11 +35,29 @@ function PageLoadingFallback() {
   return (
     <div
       role="status"
-      className="flex min-h-[50vh] items-center justify-center p-8 font-sans text-sm font-semibold text-gray-500"
+      aria-label="Loading page content"
+      className="max-w-7xl mx-auto p-4 md:p-8 animate-pulse font-sans space-y-6"
     >
-      <div className="flex items-center gap-2">
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-mmsu-green border-t-transparent" />
-        <span>Loading...</span>
+      <div className="space-y-2">
+        <div className="h-8 bg-gray-200 rounded-lg w-56" />
+        <div className="h-4 bg-gray-150 rounded w-80 max-w-full" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-3"
+          >
+            <div className="h-3 bg-gray-200 rounded w-1/2" />
+            <div className="h-8 bg-gray-200 rounded w-2/3" />
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
+        <div className="h-6 bg-gray-200 rounded w-48" />
+        <div className="h-48 bg-gray-100 rounded-lg" />
       </div>
     </div>
   );
