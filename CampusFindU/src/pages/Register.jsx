@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 const colleges = [
   ["CCIS", "College of Computing and Information Sciences"],
@@ -20,12 +20,14 @@ const colleges = [
   ["GS", "College of Graduate School"],
 ];
 
-export default function Register() {
+export default function Register({ guestOnly = false }) {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
-    userType: "student",
+    userType: guestOnly ? "visitor" : "student",
     studId: "",
     employeeId: "",
     contactNum: "",
@@ -37,10 +39,16 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
+  const userType = guestOnly ? "visitor" : formData.userType;
+  const isStudent = userType === "student";
+  const isEmployee = userType === "faculty";
+  const isVisitor = userType === "visitor";
+  const loginPath = guestOnly ? "/guest/login" : "/login";
 
   const inputClass =
-    "w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-gray-50/50";
+    "w-full min-h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-mmsu-green focus:ring-2 focus:ring-green-100 disabled:opacity-60";
+
+  const labelClass = "mb-2 block text-sm font-semibold text-gray-700";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,14 +60,14 @@ export default function Register() {
   };
 
   const handleRoleChange = (e) => {
-    const userType = e.target.value;
+    const nextRole = e.target.value;
 
     setFormData((previous) => ({
       ...previous,
-      userType,
+      userType: nextRole,
     }));
 
-    if (userType !== "student") {
+    if (nextRole !== "student") {
       setApplySCAdmin(false);
     }
   };
@@ -71,9 +79,11 @@ export default function Register() {
 
     setError("");
 
-    const allowedRoles = ["student", "faculty", "visitor"];
+    const allowedRoles = guestOnly
+      ? ["visitor"]
+      : ["student", "faculty", "visitor"];
 
-    if (!allowedRoles.includes(formData.userType)) {
+    if (!allowedRoles.includes(userType)) {
       setError("Please select a valid registration role.");
       return;
     }
@@ -82,9 +92,6 @@ export default function Register() {
       setError("Please enter your full name.");
       return;
     }
-
-    const isStudent = formData.userType === "student";
-    const isEmployee = formData.userType === "faculty";
 
     if (isStudent && !colleges.some(([code]) => code === formData.college)) {
       setError("Please select your college.");
@@ -101,7 +108,7 @@ export default function Register() {
       return;
     }
 
-    if (formData.userType === "visitor" && !formData.contactNum.trim()) {
+    if (isVisitor && !formData.contactNum.trim()) {
       setError("Please enter your contact number.");
       return;
     }
@@ -115,7 +122,7 @@ export default function Register() {
         options: {
           data: {
             fullName: formData.fullName.trim(),
-            userType: formData.userType,
+            userType,
             studId: isStudent ? formData.studId.trim() : null,
             employeeId: isEmployee ? formData.employeeId.trim() : null,
             contactNum: formData.contactNum.trim(),
@@ -127,18 +134,16 @@ export default function Register() {
 
       if (authError) throw authError;
 
-      await Swal.fire({
+      Toast.fire({
         title: "Check your email",
         text:
           isStudent && applySCAdmin
             ? "If this is a new registration, check your email for a confirmation link. Your SC admin application requires main-admin approval. Your account remains a student while pending."
             : "If this is a new registration, check your email for a confirmation link. Check your spam or junk folder too.",
         icon: "success",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#0A4222",
       });
 
-      navigate("/login");
+      navigate(loginPath);
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -147,51 +152,63 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex font-sans bg-gray-50">
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-5 sm:p-8 lg:p-12 bg-white relative overflow-y-auto">
-        <div className="w-full max-w-md my-auto">
-          <div className="mb-8">
-            <nav
-              aria-label="Account navigation"
-              className="flex flex-wrap items-center justify-between gap-3 mb-6 text-sm"
-            >
-              <Link
-                to="/login"
-                className="inline-flex min-h-11 items-center gap-2 text-gray-500 font-bold hover:text-mmsu-green focus-visible:outline-2 focus-visible:outline-mmsu-green rounded-lg"
-              >
-                <span aria-hidden="true">&larr;</span>
-                Back to Login
-              </Link>
+    <div className="relative isolate flex min-h-screen flex-col bg-mmsu-green font-sans">
+      <img
+        src="/school.jpg"
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 h-full w-full object-cover"
+      />
 
-              <Link
-                to="/admin/login"
-                className="ml-auto inline-flex min-h-11 items-center justify-center rounded-lg border border-mmsu-green/20 px-4 py-2 font-bold text-mmsu-green hover:bg-green-50 focus-visible:outline-2 focus-visible:outline-mmsu-green transition"
-              >
-                Log in as admin
-              </Link>
-            </nav>
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/30" />
 
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-3 mb-6 sm:mb-2 text-center sm:text-left">
-              <img
-                src="/logo.png"
-                alt="CampusFindU Logo"
-                className="w-16 h-20 object-contain"
-              />
+      <header className="flex items-center justify-between gap-4 px-5 py-5 sm:px-10">
+        <Link
+          to="/"
+          className="flex items-center gap-3 rounded-lg text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        >
+          <img src="/logo.png" alt="" className="h-12 w-10 object-contain" />
 
-              <h1 className="text-2xl sm:text-3xl font-black text-mmsu-green tracking-tight mt-2 sm:mt-0">
-                Create an Account
-              </h1>
-            </div>
+          <span>
+            <span className="block text-lg font-extrabold tracking-tight">
+              CampusFindU
+            </span>
 
-            <p className="text-gray-500 font-medium">
-              Join CampusFindU: Lost and Found Management System.
-            </p>
+            <span className="block text-xs text-green-100">
+              MMSU Lost and Found
+            </span>
+          </span>
+        </Link>
+
+        <Link
+          to={loginPath}
+          className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white sm:text-sm"
+        >
+          Back to Login
+        </Link>
+      </header>
+
+      <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+        <section
+          aria-label={guestOnly ? "Guest registration" : "Account registration"}
+          className="w-full max-w-lg rounded-3xl border border-white/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md sm:p-9"
+        >
+          <div className="mb-6 text-center">
+            <img
+              src="/logo.png"
+              alt="CampusFindU"
+              className="mx-auto h-20 w-16 object-contain"
+            />
+
+            <h1 className="mt-4 text-xl font-bold tracking-wide text-mmsu-green">
+              REGISTRATION
+            </h1>
           </div>
 
           {error && (
             <div
               role="alert"
-              className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm font-bold border border-red-200"
+              className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700"
             >
               {error}
             </div>
@@ -200,13 +217,10 @@ export default function Register() {
           <form onSubmit={handleRegister}>
             <fieldset
               disabled={loading}
-              className="flex flex-col gap-4 disabled:opacity-70"
+              className="space-y-5 disabled:opacity-70"
             >
               <div>
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-bold text-gray-700 mb-1"
-                >
+                <label htmlFor="fullName" className={labelClass}>
                   Full Name
                 </label>
 
@@ -223,34 +237,30 @@ export default function Register() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="userType"
-                  className="block text-sm font-bold text-gray-700 mb-1"
-                >
-                  Role
-                </label>
+              {!guestOnly && (
+                <div>
+                  <label htmlFor="userType" className={labelClass}>
+                    Role
+                  </label>
 
-                <select
-                  id="userType"
-                  name="userType"
-                  value={formData.userType}
-                  onChange={handleRoleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
-                >
-                  <option value="student">Student</option>
-                  <option value="faculty">Faculty</option>
-                  <option value="visitor">Visitor</option>
-                </select>
-              </div>
+                  <select
+                    id="userType"
+                    name="userType"
+                    value={formData.userType}
+                    onChange={handleRoleChange}
+                    className={inputClass}
+                  >
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="visitor">Visitor</option>
+                  </select>
+                </div>
+              )}
 
-              {formData.userType === "student" && (
+              {isStudent && (
                 <>
                   <div>
-                    <label
-                      htmlFor="college"
-                      className="block text-sm font-bold text-gray-700 mb-1"
-                    >
+                    <label htmlFor="college" className={labelClass}>
                       College
                     </label>
 
@@ -260,7 +270,7 @@ export default function Register() {
                       required
                       value={formData.college}
                       onChange={handleChange}
-                      className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green focus:border-mmsu-green transition bg-white"
+                      className={inputClass}
                     >
                       <option value="" disabled>
                         Select your college
@@ -274,40 +284,8 @@ export default function Register() {
                     </select>
                   </div>
 
-                  <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                    <label
-                      htmlFor="applySCAdmin"
-                      className="flex items-start gap-3 cursor-pointer"
-                    >
-                      <input
-                        id="applySCAdmin"
-                        type="checkbox"
-                        checked={applySCAdmin}
-                        onChange={(e) => setApplySCAdmin(e.target.checked)}
-                        aria-describedby="sc-admin-help"
-                        className="mt-1 h-4 w-4"
-                      />
-
-                      <span className="font-bold text-gray-800">
-                        Apply as College SC Admin
-                      </span>
-                    </label>
-
-                    <p
-                      id="sc-admin-help"
-                      className="mt-2 text-sm text-gray-600"
-                    >
-                      Apply only when you're a Student Council officer. Your
-                      account will remain a student account until the main
-                      administrator approves your application.
-                    </p>
-                  </div>
-
                   <div>
-                    <label
-                      htmlFor="studId"
-                      className="block text-sm font-bold text-gray-700 mb-1"
-                    >
+                    <label htmlFor="studId" className={labelClass}>
                       Student ID
                     </label>
 
@@ -322,15 +300,41 @@ export default function Register() {
                       className={inputClass}
                     />
                   </div>
+
+                  <div className="rounded-xl border border-gray-300 bg-transparent p-4">
+                    <label
+                      htmlFor="applySCAdmin"
+                      className="flex cursor-pointer items-start gap-3"
+                    >
+                      <input
+                        id="applySCAdmin"
+                        type="checkbox"
+                        checked={applySCAdmin}
+                        onChange={(e) => setApplySCAdmin(e.target.checked)}
+                        aria-describedby="sc-admin-help"
+                        className="mt-1 h-4 w-4 accent-green-800"
+                      />
+
+                      <span className="text-sm font-semibold text-gray-800">
+                        Apply as College SC Admin
+                      </span>
+                    </label>
+
+                    <p
+                      id="sc-admin-help"
+                      className="mt-2 text-xs leading-relaxed text-gray-600"
+                    >
+                      Apply only when you're a Student Council officer. Your
+                      account will remain a student account until the main
+                      administrator approves your application.
+                    </p>
+                  </div>
                 </>
               )}
 
-              {formData.userType === "faculty" && (
+              {isEmployee && (
                 <div>
-                  <label
-                    htmlFor="employeeId"
-                    className="block text-sm font-bold text-gray-700 mb-1"
-                  >
+                  <label htmlFor="employeeId" className={labelClass}>
                     Employee ID
                   </label>
 
@@ -347,12 +351,9 @@ export default function Register() {
                 </div>
               )}
 
-              {formData.userType === "visitor" && (
+              {isVisitor && (
                 <div>
-                  <label
-                    htmlFor="contactNum"
-                    className="block text-sm font-bold text-gray-700 mb-1"
-                  >
+                  <label htmlFor="contactNum" className={labelClass}>
                     Contact Number
                   </label>
 
@@ -371,10 +372,7 @@ export default function Register() {
               )}
 
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-bold text-gray-700 mb-1"
-                >
+                <label htmlFor="email" className={labelClass}>
                   Email Address
                 </label>
 
@@ -384,7 +382,7 @@ export default function Register() {
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="e.g. juan@example.com"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleChange}
                   className={inputClass}
@@ -392,10 +390,7 @@ export default function Register() {
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-bold text-gray-700 mb-1"
-                >
+                <label htmlFor="password" className={labelClass}>
                   Password
                 </label>
 
@@ -409,7 +404,7 @@ export default function Register() {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
-                    className={`${inputClass} pr-12`}
+                    className={`${inputClass} pr-14`}
                   />
 
                   <button
@@ -419,12 +414,12 @@ export default function Register() {
                       showPassword ? "Hide password" : "Show password"
                     }
                     aria-pressed={showPassword}
-                    className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-lg opacity-60 hover:opacity-100 transition"
+                    className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-lg transition hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mmsu-green"
                   >
                     <img
                       src={showPassword ? "/eye.png" : "/hidden.png"}
                       alt=""
-                      className="w-5 h-5"
+                      className="h-5 w-5 opacity-60"
                     />
                   </button>
                 </div>
@@ -433,41 +428,54 @@ export default function Register() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-mmsu-green text-white font-bold text-lg p-4 rounded-lg hover:bg-mmsu-light-green transition shadow-lg mt-4 disabled:opacity-50"
+                className="flex min-h-12 w-full items-center justify-center rounded-xl bg-mmsu-green px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-mmsu-light-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mmsu-green disabled:cursor-wait disabled:opacity-60"
               >
-                {loading ? "Creating Account..." : "Register"}
+                {loading
+                  ? "Creating Account..."
+                  : guestOnly
+                  ? "Register as Guest"
+                  : "Create Account"}
               </button>
             </fieldset>
           </form>
 
-          <div className="text-center text-gray-500 text-sm mt-8 font-medium flex flex-col gap-1">
-            <p className="text-xs">
-              &copy; {new Date().getFullYear()} CampusFindU. Batac City, Ilocos
-              Norte
-            </p>
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Already have an account?{" "}
+            <Link
+              to={loginPath}
+              className="font-bold text-mmsu-green hover:underline"
+            >
+              Sign in
+            </Link>
+          </p>
 
-            <p className="text-xs mt-1">
-              <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-500 hover:text-mmsu-green transition-colors"
+          {guestOnly && (
+            <p className="mt-3 text-center">
+              <Link
+                to="/register"
+                className="text-sm font-semibold text-gray-500 hover:text-mmsu-green"
               >
-                Contact Developer
-              </a>
+                Student or faculty registration
+              </Link>
             </p>
-          </div>
-        </div>
-      </div>
+          )}
+        </section>
+      </main>
 
-      <div className="hidden lg:block lg:w-1/2 bg-mmsu-green relative">
-        <img
-          src="/school.jpg"
-          alt="School Campus"
-          className="w-full h-full object-cover opacity-90"
-        />
-        <div className="absolute inset-0 bg-mmsu-green/20 mix-blend-multiply" />
-      </div>
+      <footer className="px-5 pb-6 text-center text-xs leading-relaxed text-green-100">
+        <p>
+          © {new Date().getFullYear()} CampusFindU · Batac City, Ilocos Norte
+        </p>
+
+        <a
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=libedmonalvier@gmail.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-block hover:text-white hover:underline"
+        >
+          Contact Developer
+        </a>
+      </footer>
     </div>
   );
 }

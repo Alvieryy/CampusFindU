@@ -3,7 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
-import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 export default function ReportFoundItem() {
   const navigate = useNavigate();
@@ -30,7 +30,12 @@ export default function ReportFoundItem() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return alert("You must be logged in!");
+    if (!userId)
+      return Toast.fire(
+        "Sign in required",
+        "Please log in to report an item.",
+        "warning",
+      );
 
     setIsSubmitting(true);
 
@@ -61,17 +66,15 @@ export default function ReportFoundItem() {
         },
       );
 
-      Swal.fire({
+      Toast.fire({
         title: "Success!",
         text: "Item reported successfully!",
         icon: "success",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Error reporting item or uploading image. Check console.");
+      Toast.fire("Unable to submit report", "Please try again.", "error");
     } finally {
       setIsSubmitting(false);
     }

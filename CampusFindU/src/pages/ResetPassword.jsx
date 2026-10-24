@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -46,11 +46,10 @@ export default function ResetPassword() {
     if (error) {
       setError(error.message);
     } else {
-      Swal.fire({
+      Toast.fire({
         title: "Password Updated!",
         text: "Your password has been successfully changed.",
         icon: "success",
-        confirmButtonColor: "#2563eb",
       });
       navigate("/login");
     }

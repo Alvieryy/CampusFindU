@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 export default function SubmitClaim() {
   const { id } = useParams();
@@ -24,7 +24,12 @@ export default function SubmitClaim() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return alert("You must be logged in to claim an item!");
+    if (!userId)
+      return Toast.fire(
+        "Sign in required",
+        "Please log in to claim an item.",
+        "warning",
+      );
 
     setIsSubmitting(true);
 
@@ -53,17 +58,15 @@ export default function SubmitClaim() {
         proof_image_url: finalImageUrl,
       });
 
-      Swal.fire({
+      Toast.fire({
         title: "Success!",
         text: "Claim submitted.",
         icon: "success",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      alert("Error submitting claim.");
+      Toast.fire("Unable to submit claim", "Please try again.", "error");
     } finally {
       setIsSubmitting(false);
     }

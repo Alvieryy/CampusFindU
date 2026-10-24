@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
+import Toast from "../utils/toast";
 
 export default function GenerateReports() {
   const [reportType, setReportType] = useState("Lost Items Summary");
@@ -11,12 +11,20 @@ export default function GenerateReports() {
 
   const generateCSV = (data, filename) => {
     if (data.length === 0) {
-      return Swal.fire("Empty", "No records found for this date range.", "info");
+      return Toast.fire(
+        "Empty",
+        "No records found for this date range.",
+        "info",
+      );
     }
     const headers = Object.keys(data[0]).join(",");
-    const rows = data.map(obj => 
-      Object.values(obj).map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")
-    ).join("\n");
+    const rows = data
+      .map((obj) =>
+        Object.values(obj)
+          .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+          .join(","),
+      )
+      .join("\n");
     const csvContent = `${headers}\n${rows}`;
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -27,7 +35,11 @@ export default function GenerateReports() {
 
   const generatePDF = (data, title) => {
     if (data.length === 0) {
-      return Swal.fire("Empty", "No records found for this date range.", "info");
+      return Toast.fire(
+        "Empty",
+        "No records found for this date range.",
+        "info",
+      );
     }
     const headers = Object.keys(data[0]);
     let html = `
@@ -46,9 +58,18 @@ export default function GenerateReports() {
           <h2>${title}</h2>
           <p>Date Generated: ${new Date().toLocaleDateString()}</p>
           <table>
-            <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+            <thead><tr>${headers
+              .map((h) => `<th>${h}</th>`)
+              .join("")}</tr></thead>
             <tbody>
-              ${data.map(row => `<tr>${headers.map(h => `<td>${row[h] || ''}</td>`).join('')}</tr>`).join('')}
+              ${data
+                .map(
+                  (row) =>
+                    `<tr>${headers
+                      .map((h) => `<td>${row[h] || ""}</td>`)
+                      .join("")}</tr>`,
+                )
+                .join("")}
             </tbody>
           </table>
           <script>window.print(); setTimeout(() => window.close(), 500);</script>
@@ -73,7 +94,9 @@ export default function GenerateReports() {
         let data = claimsRes.data;
 
         if (dateFrom) {
-          data = data.filter((item) => new Date(item.created_at) >= new Date(dateFrom));
+          data = data.filter(
+            (item) => new Date(item.created_at) >= new Date(dateFrom),
+          );
         }
         if (dateTo) {
           const to = new Date(dateTo);
@@ -106,7 +129,9 @@ export default function GenerateReports() {
         let data = response.data;
 
         if (dateFrom) {
-          data = data.filter((item) => new Date(item.created_at) >= new Date(dateFrom));
+          data = data.filter(
+            (item) => new Date(item.created_at) >= new Date(dateFrom),
+          );
         }
         if (dateTo) {
           const to = new Date(dateTo);
@@ -115,7 +140,8 @@ export default function GenerateReports() {
         }
 
         cleanData = data.map((item) => {
-          const { id, title, category, status, created_at, location_name } = item;
+          const { id, title, category, status, created_at, location_name } =
+            item;
           return {
             ID: id,
             Title: title || "N/A",
@@ -134,7 +160,7 @@ export default function GenerateReports() {
       }
     } catch (error) {
       console.error(error);
-      Swal.fire("Error", "Failed to generate report. Check network.", "error");
+      Toast.fire("Error", "Failed to generate report. Check network.", "error");
     } finally {
       setIsGenerating(false);
     }
@@ -142,16 +168,14 @@ export default function GenerateReports() {
 
   return (
     <div className="max-w-lg font-sans bg-white border border-gray-200 rounded-xl shadow-sm p-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">
-        Generate Reports
-      </h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Generate Reports</h2>
 
       <div className="flex flex-col gap-5">
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Report Type
           </label>
-          <select 
+          <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
@@ -191,7 +215,7 @@ export default function GenerateReports() {
           <label className="block text-sm font-bold text-gray-700 mb-2">
             Format
           </label>
-          <select 
+          <select
             value={format}
             onChange={(e) => setFormat(e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-mmsu-green bg-white transition shadow-sm"
@@ -201,7 +225,7 @@ export default function GenerateReports() {
           </select>
         </div>
 
-        <button 
+        <button
           onClick={handleGenerate}
           disabled={isGenerating}
           className="w-full bg-mmsu-green text-white font-bold px-8 py-3 rounded-lg hover:bg-mmsu-light-green shadow-md mt-4 transition disabled:opacity-50"

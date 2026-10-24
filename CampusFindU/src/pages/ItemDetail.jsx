@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import SmartMatch from "../components/SmartMatch";
-import Swal from "sweetalert2";
+import Swal from "../utils/swal";
 
 export default function ItemDetail({ type }) {
   const { id } = useParams();

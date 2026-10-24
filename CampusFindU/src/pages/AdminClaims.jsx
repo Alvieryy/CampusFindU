@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
+import Toast from "../utils/toast";
 
 export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
@@ -54,7 +54,7 @@ export default function AdminClaims() {
         },
       );
 
-      Swal.fire(
+      Toast.fire(
         decision === "approved" ? "Approved!" : "Rejected!",
         `The claim has been ${decision} and the user has been notified.`,
         decision === "approved" ? "success" : "info",
@@ -62,7 +62,11 @@ export default function AdminClaims() {
 
       fetchClaims();
     } catch {
-      Swal.fire("Error", "Something went wrong processing the claim.", "error");
+      Toast.fire(
+        "Error",
+        "Something went wrong processing the claim.",
+        "error",
+      );
     }
   };
 
@@ -99,8 +103,8 @@ export default function AdminClaims() {
                     claim.status === "approved"
                       ? "bg-green-100 text-green-700"
                       : claim.status === "rejected"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-orange-100 text-orange-700"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-100 text-orange-700"
                   }`}
                 >
                   {claim.status}
