@@ -72,20 +72,14 @@ export default function CampusMap() {
   const [error, setError] = useState("");
   const fetchingRef = useRef(false);
 
-  const fetchItems = useCallback(async (signal) => {
+  const fetchItems = useCallback(async () => {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
 
     try {
       const [lostResponse, foundResponse] = await Promise.all([
-        axios.get(`${API_URL}/lost-items`, {
-          signal,
-          timeout: 60000,
-        }),
-        axios.get(`${API_URL}/found-items`, {
-          signal,
-          timeout: 60000,
-        }),
+        axios.get(`${API_URL}/lost-items`, { timeout: 60000 }),
+        axios.get(`${API_URL}/found-items`, { timeout: 60000 }),
       ]);
 
       if (
@@ -99,8 +93,16 @@ export default function CampusMap() {
       setFoundItems(getActiveItems(foundResponse.data, "found"));
       setError("");
     } catch (requestError) {
-      if (axios.isCancel(requestError)) return;
+      if (
+        axios.isCancel(requestError) ||
+        requestError?.code === "ERR_CANCELED" ||
+        requestError?.name === "CanceledError" ||
+        requestError?.name === "AbortError"
+      ) {
+        return;
+      }
 
+      console.error(requestError);
       setError(
         "Unable to refresh map items. The server may still be waking up.",
       );
@@ -112,13 +114,12 @@ export default function CampusMap() {
 
   useEffect(() => {
     let mounted = true;
-    const controller = new AbortController();
 
-    fetchItems(controller.signal);
+    fetchItems();
 
     const refreshWhenVisible = () => {
       if (document.visibilityState === "visible" && mounted) {
-        fetchItems(controller.signal);
+        fetchItems();
       }
     };
 
@@ -129,7 +130,6 @@ export default function CampusMap() {
 
     return () => {
       mounted = false;
-      controller.abort();
       window.clearInterval(intervalId);
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
@@ -164,8 +164,14 @@ export default function CampusMap() {
         >
           <span>{error}</span>
           <button
-            onClick={() => fetchItems()}
-            className="ml-4 font-bold text-red-800 underline hover:no-underline"
+            type="button"
+            onClick={() => {
+              setLoading(true);
+              setError("");
+              fetchingRef.current = false;
+              fetchItems();
+            }}
+            className="ml-4 font-bold text-red-800 underline hover:no-underline whitespace-nowrap"
           >
             Retry
           </button>
