@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { supabase } from "../supabaseClient";
 import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 import { MapPin, Tag } from "lucide-react";
 
 export default function LostItemsList() {
@@ -57,10 +58,10 @@ export default function LostItemsList() {
         await axios.delete(
           `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
         );
-        Swal.fire("Deleted!", "The report has been removed.", "success");
+        Toast.fire("Deleted!", "The report has been removed.", "success");
         fetchData();
       } catch {
-        Swal.fire("Error", "Failed to delete report. Check backend.", "error");
+        Toast.fire("Error", "Failed to delete report. Check backend.", "error");
       }
     }
   };
@@ -71,10 +72,10 @@ export default function LostItemsList() {
         `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
         { status: "resolved" },
       );
-      Swal.fire("Resolved!", "Item marked as resolved.", "success");
+      Toast.fire("Resolved!", "Item marked as resolved.", "success");
       fetchData();
     } catch {
-      Swal.fire("Error", "Failed to update status.", "error");
+      Toast.fire("Error", "Failed to update status.", "error");
     }
   };
 

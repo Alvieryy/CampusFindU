@@ -3,7 +3,7 @@ import axios from "axios";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
-import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 export default function ReportLostItem() {
   const navigate = useNavigate();
@@ -30,7 +30,13 @@ export default function ReportLostItem() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return alert("You must be logged in!");
+    if (!userId) {
+      return Toast.fire(
+        "Sign in required",
+        "Please log in to report a lost item.",
+        "warning",
+      );
+    }
 
     setIsSubmitting(true);
 
@@ -61,12 +67,10 @@ export default function ReportLostItem() {
         },
       );
 
-      Swal.fire({
+      Toast.fire({
         title: "Success!",
         text: "Lost item reported successfully!",
         icon: "success",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#2563eb",
       });
       navigate("/dashboard");
     } catch (error) {
@@ -75,13 +79,7 @@ export default function ReportLostItem() {
         error.response?.data?.error ||
         error.message ||
         "Error reporting lost item.";
-      Swal.fire({
-        title: "Error!",
-        text: message,
-        icon: "error",
-        confirmButtonText: "Okay",
-        confirmButtonColor: "#2563eb",
-      });
+      Toast.fire("Unable to submit report", message, "error");
     } finally {
       setIsSubmitting(false);
     }

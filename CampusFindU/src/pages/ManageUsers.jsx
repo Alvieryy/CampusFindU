@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
 import Swal from "../utils/swal";
+import Toast from "../utils/toast";
 
 const collegeNames = {
   CCIS: "College of Computing and Information Sciences",
@@ -160,7 +161,7 @@ export default function ManageUsers() {
 
       if (error) throw error;
 
-      await Swal.fire({
+      Toast.fire({
         title: approve ? "Approved!" : "Rejected",
         text: approve
           ? "The applicant is now a college SC admin."
@@ -170,7 +171,7 @@ export default function ManageUsers() {
 
       await fetchUsers();
     } catch (error) {
-      await Swal.fire(
+      Toast.fire(
         "Unable to Review",
         error.message || "Something went wrong.",
         "error",
@@ -220,7 +221,7 @@ export default function ManageUsers() {
 
       await fetchUsers();
     } catch (error) {
-      await Swal.fire(
+      Toast.fire(
         "Unable to Update",
         error.message || "Something went wrong.",
         "error",
