@@ -157,8 +157,10 @@ export default function Register({ guestOnly = false }) {
         src="/school.jpg"
         alt=""
         aria-hidden="true"
-        className="absolute inset-0 -z-20 h-full w-full object-cover"
+        className="fixed inset-0 -z-20 h-full w-full object-cover"
       />
+
+      <div aria-hidden="true" className="fixed inset-0 -z-10 bg-black/60" />
 
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/30" />
 
@@ -175,7 +177,7 @@ export default function Register({ guestOnly = false }) {
             </span>
 
             <span className="block text-xs text-green-100">
-              MMSU Lost and Found
+              Lost and Found Management System
             </span>
           </span>
         </Link>
@@ -200,7 +202,7 @@ export default function Register({ guestOnly = false }) {
               className="mx-auto h-20 w-16 object-contain"
             />
 
-            <h1 className="mt-4 text-xl font-bold tracking-wide text-mmsu-green">
+            <h1 className="mt-4 text-3xl sm:text-4xl font-black tracking-wide text-mmsu-green">
               REGISTRATION
             </h1>
           </div>

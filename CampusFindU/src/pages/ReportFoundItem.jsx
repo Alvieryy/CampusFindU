@@ -74,7 +74,11 @@ export default function ReportFoundItem() {
       navigate("/dashboard");
     } catch (error) {
       console.error(error);
-      Toast.fire("Unable to submit report", "Please try again.", "error");
+      const message =
+        error.response?.data?.error ||
+        error.message ||
+        "Please try again.";
+      Toast.fire("Unable to submit report", message, "error");
     } finally {
       setIsSubmitting(false);
     }

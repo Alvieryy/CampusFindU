@@ -157,7 +157,7 @@ export default function Login({ adminOnly = false, guestOnly = false }) {
             </span>
 
             <span className="block text-xs text-green-100">
-              MMSU Lost and Found
+              Lost and Found Management System
             </span>
           </span>
         </Link>

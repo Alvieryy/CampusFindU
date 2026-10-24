@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -70,63 +70,57 @@ export default function CampusMap() {
   const [foundItems, setFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const fetchingRef = useRef(false);
+
+  const fetchItems = useCallback(async (signal) => {
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+
+    try {
+      const [lostResponse, foundResponse] = await Promise.all([
+        axios.get(`${API_URL}/lost-items`, {
+          signal,
+          timeout: 60000,
+        }),
+        axios.get(`${API_URL}/found-items`, {
+          signal,
+          timeout: 60000,
+        }),
+      ]);
+
+      if (
+        !Array.isArray(lostResponse.data) ||
+        !Array.isArray(foundResponse.data)
+      ) {
+        throw new Error("Unexpected item response.");
+      }
+
+      setLostItems(getActiveItems(lostResponse.data, "lost"));
+      setFoundItems(getActiveItems(foundResponse.data, "found"));
+      setError("");
+    } catch (requestError) {
+      if (axios.isCancel(requestError)) return;
+
+      setError(
+        "Unable to refresh map items. The server may still be waking up.",
+      );
+    } finally {
+      fetchingRef.current = false;
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let mounted = true;
-    let fetching = false;
     const controller = new AbortController();
 
-    const fetchItems = async () => {
-      if (fetching || !mounted) return;
-
-      fetching = true;
-
-      try {
-        const [lostResponse, foundResponse] = await Promise.all([
-          axios.get(`${API_URL}/lost-items`, {
-            signal: controller.signal,
-            timeout: 30000,
-          }),
-          axios.get(`${API_URL}/found-items`, {
-            signal: controller.signal,
-            timeout: 30000,
-          }),
-        ]);
-
-        if (!mounted) return;
-
-        if (
-          !Array.isArray(lostResponse.data) ||
-          !Array.isArray(foundResponse.data)
-        ) {
-          throw new Error("Unexpected item response.");
-        }
-
-        setLostItems(getActiveItems(lostResponse.data, "lost"));
-        setFoundItems(getActiveItems(foundResponse.data, "found"));
-        setError("");
-      } catch (requestError) {
-        if (!mounted || axios.isCancel(requestError)) return;
-
-        setError(
-          "Unable to refresh map items. Previously loaded markers may be outdated.",
-        );
-      } finally {
-        fetching = false;
-
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
+    fetchItems(controller.signal);
 
     const refreshWhenVisible = () => {
-      if (document.visibilityState === "visible") {
-        fetchItems();
+      if (document.visibilityState === "visible" && mounted) {
+        fetchItems(controller.signal);
       }
     };
-
-    fetchItems();
 
     const intervalId = window.setInterval(refreshWhenVisible, 15000);
 
@@ -140,7 +134,7 @@ export default function CampusMap() {
       window.removeEventListener("focus", refreshWhenVisible);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
-  }, []);
+  }, [fetchItems]);
 
   return (
     <div style={{ width: "100%", minWidth: 0 }}>
@@ -164,12 +158,18 @@ export default function CampusMap() {
       )}
 
       {error && (
-        <p
+        <div
           role="alert"
-          className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700"
+          className="mb-3 flex items-center justify-between rounded-lg bg-red-50 p-3 text-sm text-red-700"
         >
-          {error}
-        </p>
+          <span>{error}</span>
+          <button
+            onClick={() => fetchItems()}
+            className="ml-4 font-bold text-red-800 underline hover:no-underline"
+          >
+            Retry
+          </button>
+        </div>
       )}
 
       {!loading &&
