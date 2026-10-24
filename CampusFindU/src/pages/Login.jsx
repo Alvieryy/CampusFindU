@@ -326,7 +326,7 @@ export default function Login({ adminOnly = false, guestOnly = false }) {
 
               <Link
                 to="/guest/login"
-                className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl border border-gray-300 bg-transparent px-4 py-3 text-sm font-bold text-gray-800 transition hover:bg-white/30"
+                className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
               >
                 Visitor / Guest Login
               </Link>
