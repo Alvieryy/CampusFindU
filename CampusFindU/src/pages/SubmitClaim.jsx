@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
+import apiClient from "../utils/apiClient";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Toast from "../utils/toast";
+import { useAuth } from "../context/AuthContext";
 
 export default function SubmitClaim() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(null);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const [formData, setFormData] = useState({
     proof_description: "",
@@ -15,12 +17,6 @@ export default function SubmitClaim() {
 
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setUserId(session.user.id);
-    });
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,7 +47,7 @@ export default function SubmitClaim() {
         finalImageUrl = data.publicUrl;
       }
 
-      await axios.post("https://campusfindu-backend.onrender.com/api/claims", {
+      await apiClient.post("https://campusfindu-backend.onrender.com/api/claims", {
         found_item_id: id,
         claimant_id: userId,
         proof_description: formData.proof_description,

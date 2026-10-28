@@ -1,45 +1,42 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import Toast from "../utils/toast";
 
 export default function Profile() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, setProfile, user, refreshProfile } = useAuth();
+  const [loading, setLoading] = useState(!profile);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
-    contactNum: "",
-    studId: "",
-    employeeId: "",
+    fullName: profile?.fullName || "",
+    contactNum: profile?.contactNum || "",
+    studId: profile?.studId || "",
+    employeeId: profile?.employeeId || "",
   });
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (session) {
-      const { data } = await supabase
-        .from("Users")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
-
-      if (data) {
-        setProfile(data);
-        setFormData({
-          fullName: data.fullName || "",
-          contactNum: data.contactNum || "",
-          studId: data.studId || "",
-          employeeId: data.employeeId || "",
-        });
-      }
+    if (profile) {
+      setFormData({
+        fullName: profile.fullName || "",
+        contactNum: profile.contactNum || "",
+        studId: profile.studId || "",
+        employeeId: profile.employeeId || "",
+      });
+      setLoading(false);
+    } else if (user) {
+      refreshProfile().then((data) => {
+        if (data) {
+          setFormData({
+            fullName: data.fullName || "",
+            contactNum: data.contactNum || "",
+            studId: data.studId || "",
+            employeeId: data.employeeId || "",
+          });
+        }
+        setLoading(false);
+      });
     }
-    setLoading(false);
-  };
+  }, [profile, user, refreshProfile]);
 
   const handleAvatarUpload = async (e) => {
     const file = e.target.files[0];

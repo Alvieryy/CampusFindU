@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import Toast from "../utils/toast";
 import SearchableSelect from "../components/SearchableSelect";
 
@@ -88,11 +88,11 @@ export default function GenerateReports() {
       let cleanData = [];
 
       if (reportType === "Claims Report") {
-        const [claimsRes, itemsRes] = await Promise.all([
-          axios.get("https://campusfindu-backend.onrender.com/api/claims"),
-          axios.get("https://campusfindu-backend.onrender.com/api/found-items"),
+        const [claimsData, itemsData] = await Promise.all([
+          apiClient.get("https://campusfindu-backend.onrender.com/api/claims"),
+          apiClient.get("https://campusfindu-backend.onrender.com/api/found-items"),
         ]);
-        let data = claimsRes.data;
+        let data = claimsData || [];
 
         if (dateFrom) {
           data = data.filter(
@@ -105,7 +105,7 @@ export default function GenerateReports() {
           data = data.filter((item) => new Date(item.created_at) <= to);
         }
 
-        const itemsMap = new Map((itemsRes.data || []).map((i) => [i.id, i]));
+        const itemsMap = new Map((itemsData || []).map((i) => [i.id, i]));
 
         cleanData = data.map((claim) => {
           const foundItem = itemsMap.get(claim.found_item_id) || {};
@@ -124,10 +124,9 @@ export default function GenerateReports() {
             ? "/api/lost-items"
             : "/api/found-items";
 
-        const response = await axios.get(
+        let data = (await apiClient.get(
           `https://campusfindu-backend.onrender.com${endpoint}`,
-        );
-        let data = response.data;
+        )) || [];
 
         if (dateFrom) {
           data = data.filter(

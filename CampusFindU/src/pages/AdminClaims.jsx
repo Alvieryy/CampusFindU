@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import Toast from "../utils/toast";
 import EmptyState from "../components/EmptyState";
 
@@ -7,12 +7,13 @@ export default function AdminClaims() {
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchClaims = async () => {
+  const fetchClaims = async (force = false) => {
     try {
-      const response = await axios.get(
+      const data = await apiClient.get(
         "https://campusfindu-backend.onrender.com/api/claims",
+        { force },
       );
-      const sorted = response.data.sort((a, b) =>
+      const sorted = (data || []).sort((a, b) =>
         a.status === "pending" ? -1 : b.status === "pending" ? 1 : 0,
       );
       setClaims(sorted);
@@ -29,7 +30,7 @@ export default function AdminClaims() {
 
   const handleDecision = async (claim, decision) => {
     try {
-      await axios.put(
+      await apiClient.put(
         `https://campusfindu-backend.onrender.com/api/claims/${claim.id}`,
         {
           status: decision,
@@ -37,7 +38,7 @@ export default function AdminClaims() {
       );
 
       if (decision === "approved") {
-        await axios.put(
+        await apiClient.put(
           `https://campusfindu-backend.onrender.com/api/found-items/${claim.found_item_id}`,
           {
             status: "claimed",
@@ -45,7 +46,7 @@ export default function AdminClaims() {
         );
       }
 
-      await axios.post(
+      await apiClient.post(
         "https://campusfindu-backend.onrender.com/api/notifications",
         {
           user_id: claim.claimant_id,

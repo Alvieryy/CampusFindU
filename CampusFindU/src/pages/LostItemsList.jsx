@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { supabase } from "../supabaseClient";
+import { useAuth } from "../context/AuthContext";
+import apiClient from "../utils/apiClient";
 import Swal from "../utils/swal";
 import Toast from "../utils/toast";
 import { MapPin, Tag } from "lucide-react";
@@ -8,29 +8,19 @@ import EmptyState from "../components/EmptyState";
 import { CardGridSkeleton } from "../components/Skeleton";
 
 export default function LostItemsList() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.userType === "admin";
   const [items, setItems] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = async (force = false) => {
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        const { data: userData } = await supabase
-          .from("Users")
-          .select("userType")
-          .eq("id", session.user.id)
-          .single();
-        if (userData?.userType === "admin") setIsAdmin(true);
-      }
-
-      const response = await axios.get(
+      const data = await apiClient.get(
         "https://campusfindu-backend.onrender.com/api/lost-items",
+        { force },
       );
       setItems(
-        response.data.sort(
+        (data || []).sort(
           (a, b) => new Date(b.created_at) - new Date(a.created_at),
         ),
       );
@@ -57,11 +47,11 @@ export default function LostItemsList() {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(
+        await apiClient.delete(
           `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
         );
         Toast.fire("Deleted!", "The report has been removed.", "success");
-        fetchData();
+        fetchData(true);
       } catch {
         Toast.fire("Error", "Failed to delete report. Check backend.", "error");
       }
@@ -70,12 +60,12 @@ export default function LostItemsList() {
 
   const handleResolve = async (id) => {
     try {
-      await axios.put(
+      await apiClient.put(
         `https://campusfindu-backend.onrender.com/api/lost-items/${id}`,
         { status: "resolved" },
       );
       Toast.fire("Resolved!", "Item marked as resolved.", "success");
-      fetchData();
+      fetchData(true);
     } catch {
       Toast.fire("Error", "Failed to update status.", "error");
     }

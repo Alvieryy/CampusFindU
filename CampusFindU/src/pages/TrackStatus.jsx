@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { useParams, Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import { DetailSkeleton } from "../components/Skeleton";
@@ -14,10 +14,10 @@ export default function TrackStatus() {
       try {
         const endpoint =
           type === "lost" ? `/api/lost-items/${id}` : `/api/found-items/${id}`;
-        const response = await axios.get(
+        const data = await apiClient.get(
           `https://campusfindu-backend.onrender.com${endpoint}`,
         );
-        setItem(response.data);
+        setItem(data);
       } catch (error) {
         console.error(error);
       } finally {

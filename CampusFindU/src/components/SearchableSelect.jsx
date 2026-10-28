@@ -11,6 +11,8 @@ export default function SearchableSelect({
   className = "",
   disabled = false,
   required = false,
+  allowCustom = false,
+  customLabelPrefix = "Use",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -28,6 +30,12 @@ export default function SearchableSelect({
   });
 
   const selectedOption = normalizedOptions.find((opt) => opt.value === value);
+
+  const displayLabel = selectedOption
+    ? selectedOption.label
+    : value
+    ? value
+    : placeholder;
 
   const filteredOptions = normalizedOptions.filter((opt) =>
     opt.label.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,10 +118,12 @@ export default function SearchableSelect({
       >
         <span
           className={`truncate pr-2 ${
-            selectedOption ? "text-gray-900 font-medium" : "text-gray-400"
+            selectedOption || value
+              ? "text-gray-900 font-medium"
+              : "text-gray-400"
           }`}
         >
-          {selectedOption ? selectedOption.label : placeholder}
+          {displayLabel}
         </span>
 
         <svg
@@ -158,6 +168,29 @@ export default function SearchableSelect({
               />
             </svg>
           </div>
+
+          {allowCustom &&
+            search.trim() &&
+            !normalizedOptions.some(
+              (opt) =>
+                opt.value.toLowerCase() === search.trim().toLowerCase() ||
+                opt.label.toLowerCase() === search.trim().toLowerCase(),
+            ) && (
+              <button
+                type="button"
+                onClick={() => handleSelect(search.trim())}
+                className="w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between bg-green-50/80 hover:bg-green-100 text-mmsu-green font-semibold transition cursor-pointer mb-2 border border-green-200"
+              >
+                <span className="truncate pr-2">
+                  ➕ {customLabelPrefix} &quot;
+                  <span className="font-bold underline">{search.trim()}</span>
+                  &quot; as specific category
+                </span>
+                <span className="text-[10px] uppercase font-bold bg-green-200 text-green-900 px-1.5 py-0.5 rounded shrink-0">
+                  Custom
+                </span>
+              </button>
+            )}
 
           <div
             role="listbox"

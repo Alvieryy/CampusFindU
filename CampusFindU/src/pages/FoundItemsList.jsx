@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import Swal from "../utils/swal";
 import EmptyState from "../components/EmptyState";
 import { CardGridSkeleton } from "../components/Skeleton";
@@ -13,10 +13,10 @@ export default function FoundItemsList() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get(
+        const data = await apiClient.get(
           "https://campusfindu-backend.onrender.com/api/found-items",
         );
-        setItems(response.data);
+        setItems(data || []);
       } catch (error) {
         console.error(error);
       } finally {

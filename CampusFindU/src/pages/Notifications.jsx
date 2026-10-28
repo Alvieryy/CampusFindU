@@ -1,44 +1,43 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { supabase } from "../supabaseClient";
+import apiClient from "../utils/apiClient";
+import { useAuth } from "../context/AuthContext";
 import EmptyState from "../components/EmptyState";
 import { ListSkeleton } from "../components/Skeleton";
 
 export default function Notifications() {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        fetchNotifications(session.user.id);
-      } else {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const fetchNotifications = async () => {
+      try {
+        const data = await apiClient.get(
+          `https://campusfindu-backend.onrender.com/api/notifications?user_id=${user.id}`,
+        );
+        setNotifications(data || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
         setLoading(false);
       }
-    });
-  }, []);
+    };
 
-  const fetchNotifications = async (uid) => {
-    try {
-      const response = await axios.get(
-        "https://campusfindu-backend.onrender.com/api/notifications",
-      );
-      const userNotifs = response.data.filter((n) => n.user_id === uid);
-      setNotifications(userNotifs);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchNotifications();
+  }, [user]);
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(
+      await apiClient.put(
         `https://campusfindu-backend.onrender.com/api/notifications/${id}/read`,
       );
-      setNotifications(
-        notifications.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)),
       );
     } catch (error) {
       console.error(error);

@@ -1,33 +1,60 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
+import apiClient from "../utils/apiClient";
 import { supabase } from "../supabaseClient";
 import { useNavigate } from "react-router-dom";
 import LocationPickerMap from "../components/LocationPickerMap";
 import Toast from "../utils/toast";
 import SearchableSelect from "../components/SearchableSelect";
+import { useAuth } from "../context/AuthContext";
+
+const STANDARD_CATEGORIES = [
+  { value: "Electronics", label: "Electronics (Laptops, Phones, Chargers)" },
+  { value: "Wallets & IDs", label: "Wallets & IDs (Cards, Badges, Licenses)" },
+  { value: "Clothing & Apparel", label: "Clothing & Apparel (Jackets, Uniforms, Caps)" },
+  { value: "Bags & Backpacks", label: "Bags & Backpacks (Backpacks, Pouches, Totes)" },
+  { value: "Keys & Access Cards", label: "Keys & Access Cards (Dorm, Vehicle, Padlocks)" },
+  { value: "Books & School Supplies", label: "Books & School Supplies (Notebooks, Pens)" },
+  { value: "Jewelry & Accessories", label: "Jewelry & Accessories (Watches, Rings, Glasses)" },
+  { value: "Personal Items", label: "Personal Items (Water Bottles, Tumblers, Umbrellas)" },
+  { value: "Other", label: "Other (Please specify...)" },
+];
 
 export default function ReportLostItem() {
   const navigate = useNavigate();
-  const [userId, setUserId] = useState(null);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Electronics",
     location_name: "",
     latitude: 18.0583,
     longitude: 120.5446,
     status: "lost",
   });
 
+  const [selectedCategory, setSelectedCategory] = useState("Electronics");
+  const [customCategory, setCustomCategory] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setUserId(session.user.id);
-    });
-  }, []);
+  const isOtherSelected = selectedCategory === "Other";
+
+  const handleCategoryChange = (e) => {
+    const val = e.target.value;
+    const isStandard = STANDARD_CATEGORIES.some(
+      (c) => c.value.toLowerCase() === val.toLowerCase() && c.value !== "Other",
+    );
+    if (!isStandard) {
+      setSelectedCategory("Other");
+      if (val !== "Other") {
+        setCustomCategory(val);
+      }
+    } else {
+      setSelectedCategory(val);
+      setCustomCategory("");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,6 +64,18 @@ export default function ReportLostItem() {
         "Please log in to report a lost item.",
         "warning",
       );
+    }
+
+    let finalCategory = selectedCategory;
+    if (isOtherSelected) {
+      if (!customCategory.trim()) {
+        return Toast.fire(
+          "Specify Category",
+          "Please enter a specific category name for your item.",
+          "warning",
+        );
+      }
+      finalCategory = customCategory.trim();
     }
 
     setIsSubmitting(true);
@@ -59,10 +98,11 @@ export default function ReportLostItem() {
         finalImageUrl = data.publicUrl;
       }
 
-      await axios.post(
+      await apiClient.post(
         "https://campusfindu-backend.onrender.com/api/lost-items",
         {
           ...formData,
+          category: finalCategory,
           user_id: userId,
           image_url: finalImageUrl,
         },
@@ -141,20 +181,34 @@ export default function ReportLostItem() {
               <SearchableSelect
                 id="category"
                 name="category"
-                value={formData.category}
-                onChange={(e) =>
-                  setFormData({ ...formData, category: e.target.value })
-                }
-                options={[
-                  { value: "Electronics", label: "Electronics" },
-                  { value: "Wallets", label: "Wallets & IDs" },
-                  { value: "Clothing", label: "Clothing" },
-                  { value: "Other", label: "Other" },
-                ]}
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                options={STANDARD_CATEGORIES}
                 placeholder="Select category"
-                searchPlaceholder="Search category..."
+                searchPlaceholder="Search or type specific category..."
+                allowCustom={true}
+                customLabelPrefix="Use"
                 className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
               />
+
+              {isOtherSelected && (
+                <div className="mt-3">
+                  <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                    Specific Category Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Laboratory Equipment, Sports Gear, Musical Instrument..."
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition shadow-sm text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Please describe the specific category so others can easily find or match your item.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

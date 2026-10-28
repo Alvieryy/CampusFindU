@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function SidebarLayout({ children }) {
   const location = useLocation();
+  const { profile: authProfile, user } = useAuth();
+  const profile = authProfile || { fullName: "Loading...", userType: "..." };
   const [unreadCount, setUnreadCount] = useState(0);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -55,38 +57,27 @@ export default function SidebarLayout({ children }) {
     };
   }, [isMobileMenuOpen]);
 
-  const [profile, setProfile] = useState({
-    fullName: "Loading...",
-    userType: "...",
-  });
-
   useEffect(() => {
-    let currentUserId = null;
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        currentUserId = session.user.id;
-        fetchUnreadCount(session.user.id);
-        fetchUserProfile(session.user.id);
-        supabase
-          .from("Users")
-          .update({ is_online: true })
-          .eq("id", session.user.id)
-          .then();
-      }
-    });
+    if (!user?.id) return;
+    const uid = user.id;
+    fetchUnreadCount(uid);
+
+    supabase
+      .from("Users")
+      .update({ is_online: true })
+      .eq("id", uid)
+      .then();
 
     const handleUnload = () => {
-      if (currentUserId) {
-        supabase
-          .from("Users")
-          .update({ is_online: false })
-          .eq("id", currentUserId)
-          .then();
-      }
+      supabase
+        .from("Users")
+        .update({ is_online: false })
+        .eq("id", uid)
+        .then();
     };
     window.addEventListener("beforeunload", handleUnload);
     return () => window.removeEventListener("beforeunload", handleUnload);
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     let idleTimer;
@@ -128,26 +119,18 @@ export default function SidebarLayout({ children }) {
 
   const fetchUnreadCount = async (uid) => {
     try {
-      const response = await axios.get(
-        "https://campusfindu-backend.onrender.com/api/notifications",
-      );
-      const unread = response.data.filter(
-        (n) => n.user_id === uid && n.is_read === false,
-      );
-      setUnreadCount(unread.length);
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", uid)
+        .eq("is_read", false);
+
+      if (!error && typeof count === "number") {
+        setUnreadCount(count);
+      }
     } catch {
       // ignore
     }
-  };
-
-  const fetchUserProfile = async (uid) => {
-    const { data } = await supabase
-      .from("Users")
-      .select("fullName, userType, avatarUrl")
-      .eq("id", uid)
-      .maybeSingle();
-
-    if (data) setProfile(data);
   };
 
   const getInitials = (name) => {

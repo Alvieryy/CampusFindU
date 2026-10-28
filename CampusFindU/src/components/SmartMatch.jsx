@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import { Link } from "react-router-dom";
 
 export default function SmartMatch({ currentItem, type }) {
@@ -10,14 +10,17 @@ export default function SmartMatch({ currentItem, type }) {
       try {
         const endpoint =
           type === "lost" ? "/api/found-items" : "/api/lost-items";
-        const response = await axios.get(
+        const oppositeItems = await apiClient.get(
           `https://campusfindu-backend.onrender.com${endpoint}`,
         );
-        const oppositeItems = response.data;
         const scoredMatches = [];
 
         for (const target of oppositeItems) {
-          if (target.status === "claimed" || target.status === "recovered") {
+          if (
+            target.status === "claimed" ||
+            target.status === "recovered" ||
+            target.status === "resolved"
+          ) {
             continue;
           }
 
@@ -25,7 +28,14 @@ export default function SmartMatch({ currentItem, type }) {
           const lost = type === "lost" ? currentItem : target;
           const found = type === "found" ? currentItem : target;
 
-          if (lost.category === found.category) score += 30;
+          if (
+            lost.category &&
+            found.category &&
+            lost.category.trim().toLowerCase() ===
+              found.category.trim().toLowerCase()
+          ) {
+            score += 30;
+          }
 
           const lostWords =
             (lost.title + " " + lost.description).toLowerCase().match(/\w+/g) ||

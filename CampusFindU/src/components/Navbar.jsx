@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { supabase } from "../supabaseClient";
 
 export default function Navbar() {
@@ -8,13 +7,15 @@ export default function Navbar() {
 
   const fetchUnreadCount = async (uid) => {
     try {
-      const response = await axios.get(
-        "https://campusfindu-backend.onrender.com/api/notifications"
-      );
-      const unread = response.data.filter(
-        (n) => n.user_id === uid && n.is_read === false
-      );
-      setUnreadCount(unread.length);
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", uid)
+        .eq("is_read", false);
+
+      if (!error && typeof count === "number") {
+        setUnreadCount(count);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -29,7 +30,7 @@ export default function Navbar() {
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) fetchUnreadCount(session.user.id);
       });
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);

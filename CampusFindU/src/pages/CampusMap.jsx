@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import apiClient from "../utils/apiClient";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -77,20 +77,17 @@ export default function CampusMap() {
     fetchingRef.current = true;
 
     try {
-      const [lostResponse, foundResponse] = await Promise.all([
-        axios.get(`${API_URL}/lost-items`, { timeout: 60000 }),
-        axios.get(`${API_URL}/found-items`, { timeout: 60000 }),
+      const [lostData, foundData] = await Promise.all([
+        apiClient.get(`${API_URL}/lost-items`),
+        apiClient.get(`${API_URL}/found-items`),
       ]);
 
-      if (
-        !Array.isArray(lostResponse.data) ||
-        !Array.isArray(foundResponse.data)
-      ) {
+      if (!Array.isArray(lostData) || !Array.isArray(foundData)) {
         throw new Error("Unexpected item response.");
       }
 
-      setLostItems(getActiveItems(lostResponse.data, "lost"));
-      setFoundItems(getActiveItems(foundResponse.data, "found"));
+      setLostItems(getActiveItems(lostData, "lost"));
+      setFoundItems(getActiveItems(foundData, "found"));
       setError("");
     } catch (requestError) {
       if (

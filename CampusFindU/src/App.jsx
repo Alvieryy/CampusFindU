@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import { supabase } from "./supabaseClient";
 import SidebarLayout from "./components/SidebarLayout";
 
 const Login = lazy(() => import("./pages/Login"));
@@ -63,45 +62,10 @@ function PageLoadingFallback() {
   );
 }
 
+import { AuthProvider, useAuth } from "./context/AuthContext";
+
 function ProtectedRoute({ children }) {
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-    let authChanged = false;
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      authChanged = true;
-
-      if (active) {
-        setSession(nextSession);
-        setLoading(false);
-      }
-    });
-
-    supabase.auth
-      .getSession()
-      .then(({ data, error }) => {
-        if (!active || authChanged) return;
-
-        setSession(error ? null : data.session);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (!active || authChanged) return;
-
-        setSession(null);
-        setLoading(false);
-      });
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, []);
+  const { session, loading } = useAuth();
 
   if (loading) {
     return (
@@ -121,8 +85,9 @@ function ProtectedRoute({ children }) {
 export default function App() {
   return (
     <Router>
-      <Suspense fallback={<PageLoadingFallback />}>
-        <Routes>
+      <AuthProvider>
+        <Suspense fallback={<PageLoadingFallback />}>
+          <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           <Route path="/login" element={<Login key="user" />} />
@@ -196,6 +161,7 @@ export default function App() {
           />
         </Routes>
       </Suspense>
+      </AuthProvider>
     </Router>
   );
 }
