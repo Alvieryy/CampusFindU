@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Bell } from "lucide-react";
 import { supabase } from "../supabaseClient";
 
 export default function Navbar() {
@@ -55,11 +56,12 @@ export default function Navbar() {
 
           <Link
             to="/notifications"
-            className="relative hover:opacity-80 transition text-xl"
+            className="relative hover:opacity-80 transition flex items-center p-1"
+            aria-label="Notifications"
           >
-            🔔
+            <Bell className="w-5 h-5 text-white" />
             {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-sm">
                 {unreadCount}
               </span>
             )}

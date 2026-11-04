@@ -153,7 +153,7 @@ export default function Register({ guestOnly = false }) {
   };
 
   return (
-    <div className="relative isolate flex min-h-screen flex-col bg-mmsu-green font-sans">
+    <div className="relative isolate flex min-h-screen flex-col bg-mmsu-green font-sans overflow-x-hidden">
       <img
         src="/school.jpg"
         alt=""
@@ -193,10 +193,10 @@ export default function Register({ guestOnly = false }) {
         </Link>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
+      <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6 w-full min-w-0">
         <section
           aria-label={guestOnly ? "Guest registration" : "Account registration"}
-          className="w-full max-w-lg rounded-3xl border border-white/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md sm:p-9"
+          className="w-full max-w-lg min-w-0 rounded-3xl border border-white/50 bg-white/75 p-6 shadow-2xl backdrop-blur-md sm:p-9"
         >
           <div className="mb-6 text-center">
             <img
@@ -219,10 +219,10 @@ export default function Register({ guestOnly = false }) {
             </div>
           )}
 
-          <form onSubmit={handleRegister}>
+          <form onSubmit={handleRegister} className="w-full min-w-0">
             <fieldset
               disabled={loading}
-              className="space-y-5 disabled:opacity-70"
+              className="space-y-5 disabled:opacity-70 w-full min-w-0"
             >
               <div>
                 <label htmlFor="fullName" className={labelClass}>
@@ -265,7 +265,7 @@ export default function Register({ guestOnly = false }) {
 
               {isStudent && (
                 <>
-                  <div>
+                  <div className="w-full min-w-0">
                     <label htmlFor="college" className={labelClass}>
                       College
                     </label>

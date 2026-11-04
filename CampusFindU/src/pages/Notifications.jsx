@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Check } from "lucide-react";
 import apiClient from "../utils/apiClient";
 import { useAuth } from "../context/AuthContext";
 import EmptyState from "../components/EmptyState";
@@ -107,9 +108,10 @@ export default function Notifications() {
                   {!notif.is_read && (
                     <button
                       onClick={() => markAsRead(notif.id)}
-                      className="text-sm bg-blue-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition shrink-0 ml-4"
+                      className="text-sm bg-blue-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition shrink-0 ml-4 inline-flex items-center gap-1.5 cursor-pointer"
                     >
-                      Mark as Read ✓
+                      <span>Mark as Read</span>
+                      <Check className="w-4 h-4" />
                     </button>
                   )}
                 </div>

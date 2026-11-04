@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Plus } from "lucide-react";
 
 export default function SearchableSelect({
   id,
@@ -87,7 +88,7 @@ export default function SearchableSelect({
   };
 
   return (
-    <div ref={containerRef} className="relative w-full">
+    <div ref={containerRef} className="relative w-full min-w-0">
       {required && (
         <input
           type="text"
@@ -112,12 +113,13 @@ export default function SearchableSelect({
         }}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        className={`w-full min-h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-left outline-none transition flex items-center justify-between cursor-pointer focus:border-mmsu-green focus:ring-2 focus:ring-green-100 disabled:opacity-60 disabled:cursor-not-allowed ${
+        className={`w-full max-w-full min-w-0 min-h-12 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-left outline-none transition flex items-center justify-between cursor-pointer focus:border-mmsu-green focus:ring-2 focus:ring-green-100 disabled:opacity-60 disabled:cursor-not-allowed ${
           className || ""
         }`}
       >
         <span
-          className={`truncate pr-2 ${
+          title={typeof displayLabel === "string" ? displayLabel : undefined}
+          className={`min-w-0 flex-1 truncate pr-2 ${
             selectedOption || value
               ? "text-gray-900 font-medium"
               : "text-gray-400"
@@ -144,7 +146,7 @@ export default function SearchableSelect({
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 left-0 right-0 mt-1.5 rounded-xl border border-gray-200 bg-white p-2 shadow-2xl backdrop-blur-lg">
+        <div className="absolute z-50 left-0 right-0 max-w-full min-w-0 mt-1.5 rounded-xl border border-gray-200 bg-white p-2 shadow-2xl backdrop-blur-lg">
           <div className="relative mb-2">
             <input
               ref={searchInputRef}
@@ -179,12 +181,15 @@ export default function SearchableSelect({
               <button
                 type="button"
                 onClick={() => handleSelect(search.trim())}
-                className="w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between bg-green-50/80 hover:bg-green-100 text-mmsu-green font-semibold transition cursor-pointer mb-2 border border-green-200"
+                className="w-full min-w-0 text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between gap-2 bg-green-50/80 hover:bg-green-100 text-mmsu-green font-semibold transition cursor-pointer mb-2 border border-green-200"
               >
-                <span className="truncate pr-2">
-                  ➕ {customLabelPrefix} &quot;
-                  <span className="font-bold underline">{search.trim()}</span>
-                  &quot; as specific category
+                <span className="min-w-0 flex-1 truncate pr-2 flex items-center gap-1.5">
+                  <Plus className="w-3.5 h-3.5 text-mmsu-green shrink-0" />
+                  <span>
+                    {customLabelPrefix} &quot;
+                    <span className="font-bold underline">{search.trim()}</span>
+                    &quot; as specific category
+                  </span>
                 </span>
                 <span className="text-[10px] uppercase font-bold bg-green-200 text-green-900 px-1.5 py-0.5 rounded shrink-0">
                   Custom
@@ -210,13 +215,15 @@ export default function SearchableSelect({
                     role="option"
                     aria-selected={isSelected}
                     onClick={() => handleSelect(opt.value)}
-                    className={`w-full text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between transition cursor-pointer ${
+                    className={`w-full min-w-0 text-left px-3 py-2 text-xs sm:text-sm rounded-lg flex items-center justify-between gap-2 transition cursor-pointer ${
                       isSelected
                         ? "bg-green-50 text-mmsu-green font-bold"
                         : "text-gray-700 hover:bg-gray-100 font-medium"
                     }`}
                   >
-                    <span className="truncate pr-2">{opt.label}</span>
+                    <span className="min-w-0 flex-1 pr-2 break-words whitespace-normal text-left">
+                      {opt.label}
+                    </span>
                     {isSelected && (
                       <svg
                         className="w-4 h-4 text-mmsu-green shrink-0"

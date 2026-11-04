@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Camera, Check } from "lucide-react";
 import apiClient from "../utils/apiClient";
 import { useParams, Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
@@ -66,8 +67,8 @@ export default function TrackStatus() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-400 text-5xl">
-                📷
+              <div className="w-full h-full flex items-center justify-center text-gray-300">
+                <Camera className="w-12 h-12 stroke-[1.5]" />
               </div>
             )}
           </div>
@@ -110,7 +111,7 @@ export default function TrackStatus() {
           <div className="relative border-l-2 border-gray-200 ml-4 space-y-12">
             <div className="relative pl-10">
               <div className="absolute -left-[11px] top-1 w-5 h-5 bg-green-500 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center">
-                <span className="text-white text-[10px]">✓</span>
+                <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
               </div>
               <div className="flex justify-between items-start">
                 <div>
@@ -129,7 +130,7 @@ export default function TrackStatus() {
               <div
                 className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center transition-colors ${step2 ? "bg-blue-500" : "bg-gray-300"}`}
               >
-                {step2 && <span className="text-white text-[10px]">✓</span>}
+                {step2 && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
               </div>
               <div>
                 <h4
@@ -147,7 +148,7 @@ export default function TrackStatus() {
               <div
                 className={`absolute -left-[11px] top-1 w-5 h-5 rounded-full border-4 border-gray-50 shadow-sm flex items-center justify-center transition-colors ${step3 ? "bg-green-500" : "bg-gray-300"}`}
               >
-                {step3 && <span className="text-white text-[10px]">✓</span>}
+                {step3 && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
               </div>
               <div>
                 <h4
