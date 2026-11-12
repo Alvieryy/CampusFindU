@@ -117,10 +117,15 @@ export default function Register({ guestOnly = false }) {
     setLoading(true);
 
     try {
+      const redirectUrl = window.location.origin.includes("capacitor")
+        ? "https://campusfindu.vercel.app/auth/callback"
+        : `${window.location.origin}/auth/callback`;
+
       const { error: authError } = await supabase.auth.signUp({
         email: formData.email.trim(),
         password: formData.password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             fullName: formData.fullName.trim(),
             userType,

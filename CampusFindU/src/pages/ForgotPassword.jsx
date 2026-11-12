@@ -17,20 +17,20 @@ export default function ForgotPassword() {
     setError("");
     setMessage("");
 
-    const redirectUrl =
-      window.location.origin.includes("localhost") ||
-      window.location.origin.includes("capacitor")
-        ? "https://campusfindu.vercel.app/reset-password"
-        : `${window.location.origin}/reset-password`;
+    const redirectUrl = window.location.origin.includes("capacitor")
+      ? "https://campusfindu.vercel.app/reset-password"
+      : `${window.location.origin}/reset-password`;
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
       redirectTo: redirectUrl,
     });
 
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Success! Check your email for the password reset link.");
+      setMessage(
+        "Success! If an account exists with this email, a password reset link has been sent. Please check your inbox and spam/junk folder.",
+      );
     }
     setLoading(false);
   };
